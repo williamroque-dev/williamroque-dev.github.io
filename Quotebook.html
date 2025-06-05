@@ -1,0 +1,1858 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Quotebook</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Times New Roman', serif;
+            zoom: 0.9;
+        }
+
+        #main-view {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            padding-top: 6em;
+            padding-bottom: 5.5em;
+        }
+
+        #search-header {
+            width: 100%;
+            height: 4.5em;
+            min-height: 4.5em;
+            background: #000;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            position: fixed;
+            top: 0;
+        }
+
+        #quote-button {
+            width: 6em;
+            height: 6em;
+            position: fixed;
+            bottom: 1.5em;
+            right: 1.5em;
+            background: black;
+            border-radius: 100%;
+            border: none;
+        }
+
+        #quote-button svg {
+            position: relative;
+            top: -1.1em;
+        }
+
+        #settings-button {
+            width: 7em;
+            height: 7em;
+            bottom: 1.5em;
+            right: 1.5em;
+            background: transparent;
+            border: none;
+        }
+
+        #search-input {
+            width: 12em;
+            height: 2.3em;
+            background: transparent;
+            border: solid .1em #fff;
+            font-size: 1.2em;
+            color: #ffffff;
+            font-family: 'Open Sans', 'Helvetica', sans-serif;
+            padding: 0em 1em;
+        }
+
+        #quotes-list {
+            width: 80%;
+            padding-bottom: 3em;
+        }
+
+        .quotes-category {
+            font-size: 2.4em;
+            font-weight: 400;
+            color: #000;
+            margin-bottom: .5em;
+            border-top: solid .07em #b5b5b5;
+            padding-top: 0.5em;
+        }
+
+        .quotes-subcategory {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #545454;
+            font-family: 'Open Sans', 'Helvetica', sans-serif;
+        }
+
+        .quote {
+            font-size: 1.2em;
+            margin-top: 1.4em;
+        }
+
+        .quote-text {
+            background: #f8f8f8;
+            border-left: solid .3em #000;
+            padding: 1.1em;
+            line-height: 1.6em;
+            white-space: pre-line;
+        }
+
+        .quote-reference {
+            margin-top: .8em;
+        }
+
+        .reference-source {
+            font-style: italic;
+        }
+
+        .link {
+            color: #0097b2;
+            text-decoration: none;
+        }
+
+        button.page-button {
+            height: 1.4em;
+            width: 1.5em;
+            font-size: 3em;
+            background: none;
+            border: none;
+            color: #000;
+        }
+
+        .page-button-wrapper {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            margin-top: 1em;
+        }
+
+        span.page-button-text {
+            position: relative;
+            top: -0.1em;
+        }
+
+        .filler {
+            flex-grow: 1;
+        }
+
+        button.page-button.page-button-right {
+            text-align: right;
+        }
+
+        button.page-button.page-button-left {
+            text-align: left;
+        }
+
+        .disabled {
+            color: #c7c7c7 !important;
+        }
+
+        button {
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        .hide {
+            display: none !important;
+        }
+
+        .details-input {
+            box-sizing: border-box;
+            width: 80%;
+            height: 2.6em;
+            background: #f8f8f8;
+            color: #000;
+            font-family: 'Open Sans', 'Helvetica', sans-serif;
+            border: none;
+            border-left: solid 0.17em #b5b5b5;
+            padding: 0em 1em;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.2em;
+        }
+
+        .details-input:focus {
+            border: solid .1em #000;
+            background: #fff;
+            font-family: 'Open Sans', 'Helvetica', sans-serif;
+        }
+
+        .details-textarea {
+            box-sizing: border-box;
+            width: 80%;
+            background: #f8f8f8;
+            font-size: 1.2em;
+            color: #000;
+            font-family: 'Times New Roman', serif;
+            line-height: 1.5em;
+            border: none;
+            border-left: solid 0.17em #b5b5b5;
+            padding: 1em 1em !important;
+        }
+
+        .details-textarea:focus {
+            background: #fff;
+            border: solid .12em #000 !important;
+            font-family: 'Open Sans', 'Helvetica', sans-serif;
+        }
+
+        .details-input-label {
+            font-size: 2.4em;
+            font-weight: 400;
+            color: #000;
+            margin-top: 1em;
+            margin-bottom: .5em;
+            text-align: left;
+            width: 80%;
+        }
+
+        .add-input {
+            box-sizing: border-box;
+            width: 80%;
+            height: 2.6em;
+            background: transparent;
+            border: solid .1em #000;
+            font-size: 1.4em;
+            color: #000;
+            font-family: 'Open Sans', 'Helvetica', sans-serif;
+            padding: 0em 1em;
+        }
+
+        .add-textarea {
+            box-sizing: border-box;
+            width: 80%;
+            background: transparent;
+            border: solid .1em #000;
+            font-size: 1.4em;
+            color: #000;
+            font-family: 'Open Sans', 'Helvetica', sans-serif;
+            padding: 1em 1em;
+            line-height: 1.5em;
+        }
+
+        .add-input-label {
+            font-size: 2.4em;
+            font-weight: 400;
+            color: #000;
+            margin-top: 1em;
+            margin-bottom: .5em;
+            text-align: left;
+            width: 80%;
+        }
+
+        .add-button-wrapper {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 6em;
+            background: #fff;
+            border-top: solid 0.2em #000;
+        }
+
+        .add-button {
+            background: #000;
+            color: #fff;
+            font-size: 1.4em;
+            border: none;
+            height: 2.5em;
+            width: 7em;
+            margin: 0.9em;
+        }
+
+        .back-arrow {
+            font-size: 5em;
+            color: #cbcbcb;
+            width: 1.5em;
+            text-align: center;
+            margin: 0;
+            position: absolute;
+            left: 0.08em;
+            top: -.1em;
+        }
+
+        #details-view {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 3em;
+            padding-bottom: 3em;
+        }
+
+        .details-copy {
+            width: 80%;
+            height: 2.5em;
+            border: none;
+            outline: none;
+            font-size: 1.2em;
+            background: #000;
+            color: white;
+            margin-top: 2em;
+        }
+
+        .details-delete {
+            width: 80%;
+            height: 2.5em;
+            border: none;
+            outline: none;
+            font-size: 1.2em;
+            background: #ff5757;
+            color: white;
+            margin-top: 1em;
+        }
+
+        #details-delete-wrapper {
+            position: fixed;
+            bottom: 0;
+            height: 6em;
+            width: 100%;
+            background: white;
+            border-top: solid .23em #d3d3d3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #confirmation-view {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #confirmation-header {
+            font-family: 'Open Sans', 'Helvetica', sans-serif;
+            font-size: 2.2em;
+            font-weight: 400;
+            color: #000;
+            text-align: center;
+        }
+
+        .save-discard-buttons button {
+            font-size: 1.3em;
+            width: 6em;
+            height: 2.3em;
+            margin: .7em;
+            font-weight: 400;
+        }
+
+        .confirm-button {
+            border: solid .15em #ff5757;
+            background: white;
+            color: #ff5757;
+        }
+
+        .discard-button {
+            border: solid .15em #000;
+            background: #000;
+            color: white;
+        }
+
+        #add-view {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 10em;
+        }
+
+        .select-wrapper {
+            width: 80%;
+            background: black;
+            max-height: 8em;
+            position: absolute;
+            font-size: 1.4em;
+            color: #fff;
+            font-family: 'Open Sans', 'Helvetica', sans-serif;
+            overflow-y: scroll;
+        }
+
+        .select-item {
+            height: 3em;
+            width: 100%;
+            border-bottom: solid .2em #fff;
+            display: flex;
+            align-items: center;
+            padding-left: 1em;
+            box-sizing: border-box;
+        }
+
+        .select-item:last-child {
+            border-bottom: none;
+        }
+
+        #settings-view {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 3em;
+            padding-bottom: 3em;
+        }
+
+        .settings-title {
+            font-size: 2.4em;
+            font-weight: 400;
+            color: #000;
+            margin-bottom: .5em;
+            padding-top: 0.5em;
+            width: 80%;
+        }
+
+        .settings-header {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #545454;
+            font-family: 'Open Sans', 'Helvetica', sans-serif;
+            width: 80%;
+        }
+
+        .settings-button {
+            width: 80%;
+            height: 3.1em;
+            border: none;
+            outline: none;
+            font-size: 1.2em;
+            background: #000;
+            color: white;
+        }
+
+        .language-input {
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+            width: 80%;
+            height: 2.6em;
+            background: transparent;
+            border: solid .1em #000;
+            font-size: 1.4em;
+            color: #000;
+            font-family: 'Open Sans', 'Helvetica', sans-serif;
+            padding: 0em 1em;
+        }
+
+        .language-select-wrapper {
+            width: 80%;
+            background: #ffffff;
+            max-height: 8em;
+            position: absolute;
+            font-size: 1.4em;
+            color: #000000;
+            font-family: 'Open Sans', 'Helvetica', sans-serif;
+            overflow-y: scroll;
+            border: solid .12em #000;
+        }
+
+        .language-select-item {
+            height: 3em;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            padding-left: 1em;
+            box-sizing: border-box;
+        }
+
+        input, textarea, button, select {
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        * {
+            user-select: none;
+        }
+    </style>
+    <script>
+        history.scrollRestoration = 'manual';
+    </script>
+</head>
+
+<body>
+    <div id="main-view">
+        <div id="search-header">
+            <button id="settings-button"></button>
+            <input id="search-input" type="text" placeholder="Search..." autocomplete="off">
+        </div>
+        <div id="quotes-list"> </div>
+        <button id="quote-button"></button>
+    </div>
+    <div id="details-view" class="hide"></div>
+    <div id="confirmation-view" class="hide"></div>
+    <div id="add-view" class="hide"> </div>
+    <div id="settings-view" class="hide"> </div>
+
+    <script>
+        const images = {
+            quote: '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="55" zoomAndPan="magnify" viewBox="0 0 375 374.999991" height="70" preserveAspectRatio="xMidYMid meet" version="1.0"><defs><clipPath id="73e036061d"><path d="M 369.609375 0 L 375 0 L 375 112.5 L 369.609375 112.5 Z M 369.609375 0 " clip-rule="nonzero"/></clipPath></defs><path fill="#ffffff" d="M 148.074219 308.640625 C 155.773438 298.574219 168.800781 294.617188 180.585938 289.960938 C 192.371094 285.304688 204.875 277.972656 207.855469 265.65625 C 204.761719 270.300781 200.171875 273.464844 195.023438 275.6875 C 207.941406 264.867188 213.097656 246.835938 217.179688 230.144531 C 220.183594 217.871094 223.1875 205.597656 226.191406 193.324219 C 223.722656 196.65625 220.839844 199.621094 217.484375 202.046875 C 216.730469 202.59375 221.261719 195.363281 226.519531 184.113281 C 228.726562 179.171875 230.566406 174.054688 231.902344 169.984375 C 233.308594 164.234375 234.714844 158.484375 236.125 152.734375 C 230.492188 161.640625 223.175781 169.460938 213.761719 173.4375 C 212.613281 173.921875 223.683594 163.085938 234.523438 147.109375 L 226.519531 153.339844 C 227.492188 152.738281 228.917969 151.039062 230.5625 148.777344 C 232.171875 146.445312 235.464844 139.941406 236.226562 138.417969 C 237.632812 135.109375 238.855469 131.757812 239.613281 129.527344 C 236.097656 133.679688 233.199219 136.894531 233.199219 136.894531 C 235.769531 134.09375 238.25 130.527344 240.597656 126.65625 C 241.238281 125.441406 241.941406 123.761719 242.632812 121.957031 C 238.121094 127.335938 233.144531 132.527344 229.378906 136.308594 C 228.820312 136.980469 228.265625 137.613281 227.722656 138.214844 L 227.664062 138.007812 C 228.214844 137.46875 228.757812 136.933594 229.378906 136.308594 C 235.332031 129.15625 242 117.960938 246.699219 109.503906 C 246.804688 109.09375 246.902344 108.679688 247.003906 108.265625 C 240.898438 117.097656 233.128906 125.117188 233.128906 125.117188 C 241.75 115.871094 247.714844 101.515625 250.804688 92.730469 C 252.28125 86.707031 253.753906 80.6875 255.226562 74.664062 C 256.785156 68.292969 257.792969 60.25 252.5 56.371094 C 246.410156 51.90625 238.113281 57.101562 232.449219 62.089844 C 212.574219 79.605469 192.53125 97.300781 176.925781 118.703125 C 161.320312 140.105469 150.300781 165.824219 150.96875 192.300781 C 146.652344 182.214844 145.820312 170.675781 148.640625 160.074219 C 116.324219 186.058594 106.515625 236.039062 126.316406 272.417969 L 125.054688 277.886719 C 118.710938 273.152344 114.976562 264.644531 113.238281 256.582031 C 110.976562 246.105469 110.511719 234.8125 104.683594 225.820312 C 107.992188 239.121094 106 253.128906 107.328125 266.773438 C 108.390625 277.714844 112.632812 289.335938 120.878906 295.984375 L 120.851562 296.113281 L 121.660156 298.628906 C 106.351562 294.214844 93.253906 282.320312 87.796875 267.304688 C 89.371094 287.476562 105.285156 305.554688 124.914062 310.128906 C 156.949219 216.5 210.769531 127.378906 210.769531 127.378906 C 168.492188 200.753906 139.679688 285.582031 129.246094 318.660156 C 132.636719 322.796875 137.617188 325.109375 143.679688 325.425781 C 152.460938 325.875 160.988281 322.695312 169.109375 319.3125 C 177.226562 315.933594 185.445312 312.25 194.214844 311.621094 C 180.777344 302.6875 162.550781 301.507812 148.074219 308.640625 " fill-opacity="1" fill-rule="nonzero"/><path fill="#ffffff" d="M 205.355469 125.179688 C 205.355469 125.179688 126.453125 255.835938 102.855469 366.949219 L 119.492188 330.710938 C 119.492188 330.710938 151.507812 218.644531 205.355469 125.179688 " fill-opacity="1" fill-rule="nonzero"/><path fill="#ffffff" d="M 159.316406 348.332031 C 166.15625 346.863281 173.296875 345.734375 180.132812 344.621094 C 194.734375 342.359375 207.464844 345.070312 222.300781 342.757812 C 231.597656 341.234375 240.949219 340.164062 250.394531 338.144531 C 252.753906 337.671875 255.058594 336.960938 257.40625 336.363281 C 259.75 335.75 262.105469 335.121094 264.378906 334.230469 C 266.675781 333.402344 268.976562 332.542969 271.273438 331.644531 C 273.519531 330.621094 275.738281 329.511719 277.957031 328.371094 L 281.003906 326.789062 L 283.949219 325.007812 L 289.832031 321.433594 L 295.476562 317.484375 L 298.296875 315.507812 L 300.996094 313.363281 L 306.375 309.054688 L 311.496094 304.441406 C 314.992188 301.457031 318.039062 297.992188 321.304688 294.777344 C 327.421875 287.9375 333.390625 280.953125 338.472656 273.335938 C 341.210938 269.664062 343.445312 265.667969 345.929688 261.835938 C 347.117188 259.886719 348.148438 257.847656 349.28125 255.867188 C 350.386719 253.871094 351.558594 251.910156 352.5 249.828125 C 360.222656 234.464844 365.210938 218.058594 367.371094 201.53125 C 369.503906 184.988281 369.121094 168.371094 366.585938 152.152344 C 364.09375 135.910156 359.132812 120.136719 352.3125 105.058594 C 345.445312 90.019531 336.542969 75.566406 325.359375 62.601562 C 318.992188 54.929688 311.453125 47.84375 303.363281 41.097656 C 295.179688 34.460938 286.171875 28.542969 276.714844 23.289062 C 267.203125 18.136719 257.140625 13.894531 246.894531 10.445312 C 236.605469 7.101562 226.082031 4.804688 215.671875 3.300781 C 200.496094 1.238281 176.828125 -0.0078125 154.488281 4.609375 C 132.035156 8.554688 111.613281 17.875 100.828125 25.253906 C 116.089844 16.777344 133.15625 10.417969 150.773438 7.105469 C 168.371094 3.75 186.425781 3.238281 203.414062 5.191406 C 165.871094 2.539062 127.179688 11.996094 94.585938 31.195312 C 78.332031 40.847656 63.292969 52.582031 50.792969 66.492188 C 38.261719 80.324219 27.8125 95.90625 20.539062 112.5 C 34.5 81.476562 58.476562 55.011719 87.136719 36.648438 C 115.886719 18.328125 149.632812 8.035156 183.226562 7.667969 C 216.8125 7.550781 249.625 17.09375 276.699219 34.0625 C 290.261719 42.492188 302.476562 52.644531 312.792969 64.113281 C 323.058594 75.644531 331.355469 88.457031 337.46875 101.878906 C 333.578125 94.199219 328.695312 86.878906 323.382812 79.691406 C 320.574219 76.214844 317.84375 72.605469 314.691406 69.3125 C 311.710938 65.855469 308.363281 62.707031 305.046875 59.46875 C 291.449219 46.898438 275.40625 35.984375 257.53125 28.046875 C 253.121094 25.910156 248.472656 24.308594 243.878906 22.488281 C 239.175781 21.003906 234.496094 19.304688 229.644531 18.160156 C 224.847656 16.777344 219.925781 15.886719 215 14.886719 C 212.527344 14.464844 210.03125 14.15625 207.539062 13.785156 C 205.046875 13.375 202.535156 13.15625 200.015625 12.96875 C 179.863281 11.046875 159.191406 13.179688 139.40625 18.398438 C 99.796875 28.992188 64.117188 53.519531 40.773438 85.429688 C 29.214844 101.453125 20.5625 119.054688 15.457031 137.039062 C 14.824219 139.289062 14.15625 141.511719 13.574219 143.753906 C 13.082031 146.015625 12.589844 148.265625 12.097656 150.511719 L 11.378906 153.863281 L 10.851562 157.242188 C 10.511719 159.488281 10.175781 161.722656 9.84375 163.949219 C 9.394531 168.429688 8.933594 172.855469 8.757812 177.257812 C 8.695312 181.667969 8.4375 186.003906 8.742188 190.3125 C 8.9375 200.742188 10.890625 212.1875 13.117188 220.515625 C 5.476562 187.839844 8.542969 149.085938 24.902344 114.007812 C 41.1875 78.921875 71.410156 48.863281 107.917969 31.792969 C 117.035156 27.53125 126.429688 23.796875 136.132812 21.148438 C 140.925781 19.632812 145.871094 18.691406 150.753906 17.574219 C 153.207031 17.078125 155.699219 16.753906 158.164062 16.335938 C 160.628906 15.917969 163.097656 15.546875 165.59375 15.363281 L 173.039062 14.652344 L 180.5 14.410156 L 184.21875 14.308594 L 187.933594 14.421875 C 190.410156 14.53125 192.882812 14.5 195.339844 14.726562 C 205.199219 15.386719 214.894531 17.039062 224.359375 19.203125 C 262.234375 28.332031 295.230469 49.867188 317.253906 76.789062 C 327.320312 89.191406 335.601562 102.96875 341.496094 117.742188 C 347.371094 132.503906 351.289062 148.039062 352.820312 163.796875 C 354.257812 179.550781 353.609375 195.484375 350.460938 210.90625 C 347.199219 226.296875 341.648438 241.109375 333.699219 254.792969 C 324.648438 269.382812 313.273438 282.695312 299.867188 293.457031 C 296.546875 296.363281 292.839844 298.765625 289.304688 301.386719 L 283.71875 304.910156 L 280.917969 306.660156 L 278.015625 308.222656 C 270.378906 312.609375 262.210938 315.914062 253.945312 318.738281 L 247.671875 320.652344 C 245.574219 321.257812 243.425781 321.648438 241.3125 322.167969 L 238.125 322.90625 C 237.050781 323.121094 235.945312 323.269531 234.855469 323.457031 C 232.65625 323.789062 230.519531 324.234375 228.273438 324.488281 C 219.40625 325.683594 210.140625 326.25 200.714844 326.945312 C 192.371094 327.519531 182.035156 328.175781 171.046875 329.835938 C 160.019531 331.359375 148.230469 334.519531 137.925781 339.328125 C 132.761719 341.753906 127.945312 344.597656 123.699219 347.707031 C 119.433594 350.785156 115.863281 354.316406 112.96875 357.679688 C 107.210938 364.578125 104.789062 371.25 104.671875 374.992188 C 107.550781 370.089844 111.117188 365.246094 115.300781 361.066406 C 119.46875 356.875 124.203125 353.363281 128.964844 350.851562 C 125.769531 353.449219 122.378906 356.710938 119.128906 360.164062 C 122.488281 357.152344 126.71875 354.519531 130.144531 352.105469 C 128.71875 353.105469 127.371094 354.242188 126.285156 355.273438 C 125.175781 356.269531 124.386719 357.230469 124.085938 357.925781 C 128.382812 354.875 134.476562 350.339844 138.214844 348.253906 C 139.277344 347.601562 142.28125 345.785156 145.535156 344.183594 C 148.777344 342.578125 152.261719 341.222656 153.886719 340.917969 C 149.945312 342.730469 145.558594 344.789062 141.597656 347.1875 C 137.648438 349.59375 134.0625 352.125 131.617188 354.566406 C 132.847656 353.867188 134.070312 353.164062 135.335938 352.554688 C 136.582031 351.917969 137.824219 351.285156 139.128906 350.820312 C 137.679688 351.777344 135.589844 353.15625 133.664062 354.425781 C 131.808594 355.796875 130.152344 357.042969 129.703125 357.902344 C 135.417969 354.128906 140.839844 351.070312 147.691406 348.699219 C 153.253906 346.796875 158.410156 345.582031 163.878906 344.109375 C 157.347656 345.953125 148.832031 349.03125 145.078125 351.859375 C 147.988281 350.992188 150.976562 349.839844 153.960938 348.832031 C 153.628906 349.050781 153.449219 349.246094 153.414062 349.402344 C 154.734375 348.96875 156.554688 348.65625 157.953125 348.273438 C 158.039062 348.453125 158.394531 348.558594 158.171875 348.824219 C 158.175781 348.679688 158.15625 348.539062 158.144531 348.394531 L 159.316406 348.332031 " fill-opacity="1" fill-rule="nonzero"/></svg>',
+            settings: '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="35" zoomAndPan="magnify" viewBox="0 0 375 374.999991" height="45" preserveAspectRatio="xMidYMid meet" version="1.0"><defs><clipPath id="0d9f16c932"><path d="M 369.609375 0 L 375 0 L 375 112.5 L 369.609375 112.5 Z M 369.609375 0 " clip-rule="nonzero"/></clipPath><clipPath id="4f7a89ea91"><path d="M 150 27.613281 L 225 27.613281 L 225 103 L 150 103 Z M 150 27.613281 " clip-rule="nonzero"/></clipPath><clipPath id="eebdc33694"><path d="M 300 272 L 375 272 L 375 347.113281 L 300 347.113281 Z M 300 272 " clip-rule="nonzero"/></clipPath></defs><path fill="#ffffff" d="M 366.761719 178.527344 C 368.941406 178.527344 371.03125 179.394531 372.570312 180.933594 C 374.109375 182.480469 374.976562 184.5625 374.976562 186.742188 C 374.976562 188.925781 374.109375 191.015625 372.570312 192.554688 C 371.03125 194.09375 368.941406 194.960938 366.761719 194.960938 L 68.121094 194.960938 C 65.949219 194.960938 63.855469 194.09375 62.3125 192.554688 C 60.773438 191.015625 59.90625 188.925781 59.90625 186.742188 C 59.90625 184.5625 60.773438 182.480469 62.3125 180.933594 C 63.855469 179.394531 65.949219 178.527344 68.121094 178.527344 Z M 366.761719 178.527344 " fill-opacity="1" fill-rule="nonzero"/><path fill="#ffffff" d="M 366.761719 55.339844 C 368.941406 55.339844 371.03125 56.207031 372.570312 57.746094 C 374.109375 59.285156 374.976562 61.375 374.976562 63.558594 C 374.976562 65.738281 374.109375 67.828125 372.570312 69.367188 C 371.03125 70.90625 368.941406 71.773438 366.761719 71.773438 L 218.191406 71.773438 C 216.011719 71.773438 213.917969 70.90625 212.382812 69.367188 C 210.84375 67.828125 209.976562 65.738281 209.976562 63.558594 C 209.976562 61.375 210.84375 59.285156 212.382812 57.746094 C 213.917969 56.207031 216.011719 55.339844 218.191406 55.339844 Z M 366.761719 55.339844 " fill-opacity="1" fill-rule="nonzero"/><path fill="#ffffff" d="M 304.089844 301.714844 C 306.265625 301.714844 308.355469 302.582031 309.902344 304.121094 C 311.441406 305.664062 312.308594 307.75 312.308594 309.929688 C 312.308594 312.113281 311.441406 314.203125 309.902344 315.742188 C 308.355469 317.28125 306.265625 318.148438 304.089844 318.148438 L 8.367188 318.148438 C 6.191406 318.148438 4.101562 317.28125 2.554688 315.742188 C 1.015625 314.203125 0.148438 312.113281 0.148438 309.929688 C 0.148438 307.75 1.015625 305.664062 2.554688 304.121094 C 4.101562 302.582031 6.191406 301.714844 8.367188 301.714844 Z M 304.089844 301.714844 " fill-opacity="1" fill-rule="nonzero"/><g clip-path="url(#4f7a89ea91)"><path fill="#ffffff" d="M 150.191406 64.960938 C 150.191406 55.050781 154.125 45.539062 161.132812 38.535156 C 168.140625 31.519531 177.65625 27.582031 187.566406 27.582031 C 197.480469 27.582031 206.988281 31.519531 213.996094 38.535156 C 221 45.539062 224.945312 55.050781 224.945312 64.960938 C 224.945312 74.875 221 84.382812 213.996094 91.386719 C 206.988281 98.402344 197.480469 102.339844 187.566406 102.339844 C 177.65625 102.339844 168.140625 98.402344 161.132812 91.386719 C 154.125 84.382812 150.191406 74.875 150.191406 64.960938 Z M 166.621094 64.960938 C 166.621094 59.410156 168.828125 54.078125 172.753906 50.148438 C 176.683594 46.226562 182.011719 44.015625 187.566406 44.015625 C 193.117188 44.015625 198.449219 46.226562 202.378906 50.148438 C 206.300781 54.078125 208.511719 59.410156 208.511719 64.960938 C 208.511719 70.511719 206.300781 75.84375 202.378906 79.773438 C 198.449219 83.695312 193.117188 85.90625 187.566406 85.90625 C 182.011719 85.90625 176.683594 83.695312 172.753906 79.773438 C 168.828125 75.84375 166.621094 70.511719 166.621094 64.960938 Z M 166.621094 64.960938 " fill-opacity="1" fill-rule="evenodd"/></g><path fill="#ffffff" d="M 0.0234375 186.773438 C 0.0234375 176.871094 3.960938 167.351562 10.964844 160.347656 C 17.972656 153.339844 27.488281 149.394531 37.398438 149.394531 C 47.304688 149.394531 56.820312 153.339844 63.828125 160.347656 C 70.832031 167.351562 74.777344 176.871094 74.777344 186.773438 C 74.777344 196.6875 70.832031 206.203125 63.828125 213.207031 C 56.820312 220.214844 47.304688 224.152344 37.398438 224.152344 C 27.488281 224.152344 17.972656 220.214844 10.964844 213.207031 C 3.960938 206.203125 0.0234375 196.6875 0.0234375 186.773438 Z M 16.457031 186.773438 C 16.457031 181.222656 18.660156 175.890625 22.589844 171.960938 C 26.515625 168.039062 31.84375 165.828125 37.398438 165.828125 C 42.949219 165.828125 48.285156 168.039062 52.210938 171.960938 C 56.132812 175.890625 58.34375 181.222656 58.34375 186.773438 C 58.34375 192.332031 56.132812 197.65625 52.210938 201.585938 C 48.285156 205.515625 42.949219 207.71875 37.398438 207.71875 C 31.84375 207.71875 26.515625 205.515625 22.589844 201.585938 C 18.660156 197.65625 16.457031 192.332031 16.457031 186.773438 Z M 16.457031 186.773438 " fill-opacity="1" fill-rule="evenodd"/><g clip-path="url(#eebdc33694)"><path fill="#ffffff" d="M 300.222656 309.960938 C 300.222656 300.050781 304.167969 290.539062 311.171875 283.535156 C 318.179688 276.519531 327.695312 272.582031 337.601562 272.582031 C 347.511719 272.582031 357.027344 276.519531 364.035156 283.535156 C 371.039062 290.539062 374.976562 300.050781 374.976562 309.960938 C 374.976562 319.871094 371.039062 329.382812 364.035156 336.386719 C 357.027344 343.402344 347.511719 347.339844 337.601562 347.339844 C 327.695312 347.339844 318.179688 343.402344 311.171875 336.386719 C 304.167969 329.382812 300.222656 319.871094 300.222656 309.960938 Z M 316.65625 309.960938 C 316.65625 304.410156 318.867188 299.078125 322.789062 295.148438 C 326.714844 291.226562 332.050781 289.015625 337.601562 289.015625 C 343.15625 289.015625 348.484375 291.226562 352.410156 295.148438 C 356.339844 299.078125 358.542969 304.410156 358.542969 309.960938 C 358.542969 315.511719 356.339844 320.84375 352.410156 324.773438 C 348.484375 328.695312 343.15625 330.90625 337.601562 330.90625 C 332.050781 330.90625 326.714844 328.695312 322.789062 324.773438 C 318.867188 320.84375 316.65625 315.511719 316.65625 309.960938 Z M 316.65625 309.960938 " fill-opacity="1" fill-rule="evenodd"/></g><path fill="#ffffff" d="M 156.195312 55.339844 C 158.367188 55.339844 160.460938 56.207031 162.007812 57.746094 C 163.546875 59.285156 164.410156 61.375 164.410156 63.558594 C 164.410156 65.738281 163.546875 67.828125 162.007812 69.367188 C 160.460938 70.90625 158.367188 71.773438 156.195312 71.773438 L 8.367188 71.773438 C 6.191406 71.773438 4.101562 70.90625 2.554688 69.367188 C 1.015625 67.828125 0.148438 65.738281 0.148438 63.558594 C 0.148438 61.375 1.015625 59.285156 2.554688 57.746094 C 4.101562 56.207031 6.191406 55.339844 8.367188 55.339844 Z M 156.195312 55.339844 " fill-opacity="1" fill-rule="nonzero"/></svg>'
+        };
+    </script>
+
+    <script>
+
+        const mainView = document.querySelector('#main-view');
+        const detailsView = document.querySelector('#details-view');
+        const addView = document.querySelector('#add-view');
+        const settingsView = document.querySelector('#settings-view');
+
+        const quotesList = document.querySelector('#quotes-list');
+
+        const quoteButton = document.querySelector('#quote-button');
+        const settingsButton = document.querySelector('#settings-button');
+
+        const searchInput = document.querySelector('#search-input');
+
+        const confirmationView = document.querySelector('#confirmation-view');
+
+        const languages = {
+            'English': 'eng',
+            'Portuguese': 'por',
+            'Spanish': 'spa',
+            'Japanese': 'jpn'
+        };
+
+        const defaultPageLimit = 30;
+
+        const scriptures = {
+            ot: {
+                Genesis: 'gen',
+                Exodus: 'ex',
+                Leviticus: 'lev',
+                Numbers: 'num',
+                Deuteronomy: 'deut',
+                Joshua: 'josh',
+                Judges: 'judg',
+                Ruth: 'ruth',
+                '1 Samuel': '1-sam',
+                '2 Samuel': '2-sam',
+                '1 Kings': '1-kgs',
+                '2 Kings': '2-kgs',
+                '1 Chronicles': '1-chr',
+                '2 Chronicles': '2-chr',
+                Ezra: 'ezra',
+                Nehemiah: 'neh',
+                Esther: 'esth',
+                Job: 'job',
+                Psalms: 'ps',
+                Proverbs: 'prov',
+                Ecclesiastes: 'eccl',
+                'Song of Solomon': 'song',
+                Isaiah: 'isa',
+                Jeremiah: 'jer',
+                Lamentations: 'lam',
+                Ezekiel: 'ezek',
+                Daniel: 'dan',
+                Hosea: 'hosea',
+                Joel: 'joel',
+                Amos: 'amos',
+                Obadiah: 'obad',
+                Jonah: 'jonah',
+                Micah: 'micah',
+                Nahum: 'nahum',
+                Habakkuk: 'hab',
+                Zephaniah: 'zeph',
+                Haggai: 'hag',
+                Zechariah: 'zech',
+                Malachi: 'mal'
+            },
+            nt: {
+                Matthew: 'matt',
+                Mark: 'mark',
+                Luke: 'luke',
+                John: 'john',
+                Acts: 'acts',
+                Romans: 'rom',
+                '1 Corinthians': '1-cor',
+                '2 Corinthians': '2-cor',
+                Galatians: 'gal',
+                Ephesians: 'eph',
+                Philippians: 'philip',
+                Colossians: 'col',
+                '1 Thessalonians': '1-thes',
+                '2 Thessalonians': '2-thes',
+                '1 Timothy': '1-tim',
+                '2 Timothy': '2-tim',
+                Titus: 'titus',
+                Philemon: 'philem',
+                Hebrews: 'heb',
+                James: 'james',
+                '1 Peter': '1-pet',
+                '2 Peter': '2-pet',
+                '1 John': '1-jn',
+                '2 John': '2-jn',
+                '3 John': '3-jn',
+                Jude: 'jude',
+                Revelations: 'rev'
+            },
+            bofm: {
+                '1 Nephi': '1-ne',
+                '2 Nephi': '2-ne',
+                Jacob: 'jacob',
+                Enos: 'enos',
+                Jarom: 'jarom',
+                Omni: 'omni',
+                'Words of Mormon': 'w-of-m',
+                Mosiah: 'mosiah',
+                Alma: 'alma',
+                Helaman: 'hel',
+                '3 Nephi': '3-ne',
+                '4 Nephi': '4-ne',
+                Mormon: 'morm',
+                Ether: 'ether',
+                Moroni: 'moro'
+            },
+            'dc-testament': { 'D&C': 'dc' },
+            pgp: {
+                Moses: 'moses',
+                Abraham: 'abr',
+                'Joseph Smith Matthew': 'js-m',
+                'Joseph Smith History': 'js-h',
+                'Articles of Faith': 'a-of-f'
+            }
+        };
+
+        function addImage(label, element) {
+            const imageWrapper = document.createElement('div');
+            imageWrapper.innerHTML = images[label];
+            imageWrapper.classList.add(label);
+            imageWrapper.classList.add('image-wrapper');
+
+            element.appendChild(imageWrapper);
+        }
+
+        addImage('quote', quoteButton);
+        addImage('settings', settingsButton);
+
+        function createElement(tag, parameters) {
+            const { parent, elementClass, ID, text, eventListener, attributes } = parameters;
+
+            const element = document.createElement(tag);
+
+            if (elementClass) {
+                if (Array.isArray(elementClass)) {
+                    elementClass.forEach(x => {
+                        element.classList.add(x);
+                    });
+                } else {
+                    element.classList.add(elementClass);
+                }
+            }
+
+            if (ID) {
+                element.setAttribute('id', ID);
+            }
+
+            if (parent) {
+                parent.appendChild(element);
+            }
+
+            if (eventListener) {
+                const [trigger, callback] = eventListener;
+
+                if (Array.isArray(trigger)) {
+                    trigger.forEach(type => {
+                        element.addEventListener(type, callback, false);
+                    });
+                } else {
+                    element.addEventListener(trigger, callback, false);
+                }
+            }
+
+            if (text) {
+                element.innerHTML = text;
+            }
+
+            if (attributes) {
+                for (const attribute in attributes) {
+                    if (attributes[attribute]) {
+                        element.setAttribute(attribute, attributes[attribute]);
+                    }
+                }
+            }
+
+            return element;
+        }
+
+        function linkScripture(reference) {
+            const scripturePattern = /^(?<book>(?:\d )?(?:[A-Za-z& ]+)+) (?<chapter>\d+)(?::(?<start>\d+)(?:-(?<end>\d+))?)?$/i;
+            let link = '';
+
+            if (reference.length <= 25 && scripturePattern.test(reference)) {
+                const { book, chapter, start, end } = reference.match(scripturePattern).groups;
+
+                for (const scripture in scriptures) {
+                    if (book in scriptures[scripture]) {
+                        const abbreviation = scriptures[scripture][book];
+
+                        link = `https://www.churchofjesuschrist.org/study/scriptures/${scripture}/${abbreviation}/${chapter}`;
+                        
+                        if (start) {
+                            link += '.' + start;
+
+                            if (end) {
+                                link += '-' + end;
+                            }
+                        }
+
+                        link += '?lang=' + languages[window.localStorage.getItem('settings-language') || 'English'];
+                    }
+                }
+            }
+
+            return link;
+        }
+
+        class Library {
+            constructor() {
+                this.quotes = {};
+                this.quotesCount = 0;
+
+                this.page = 0;
+                this.pageLimit = window.localStorage.getItem('settings-page-limit') || defaultPageLimit;
+            }
+
+            addQuote(data) {
+                const {
+                    author,
+                    reference,
+                    text,
+                    link,
+                    category,
+                    subcategory
+                } = data;
+
+                const quote = new Quote(
+                    author,
+                    reference,
+                    text,
+                    link,
+                    category,
+                    subcategory
+                );
+
+                quote.library = this;
+
+                if (!(category in this.quotes)) {
+                    this.quotes[category] = {};
+                }
+
+                if (!(subcategory in this.quotes[category])) {
+                    this.quotes[category][subcategory] = [];
+                }
+
+                this.quotes[category][subcategory].push(quote);
+
+                this.quotesCount++;
+            }
+
+            removeQuote(quote) {
+                const { category, subcategory } = quote;
+
+                const list = this.quotes[category][subcategory];
+
+                list.splice(list.indexOf(quote), 1);
+
+                if (!list.length) {
+                    delete this.quotes[category][subcategory];
+                }
+
+                if (!Object.keys(this.quotes[category]).length) {
+                    delete this.quotes[category];
+                }
+
+                this.saveStorage();
+
+                this.quotesCount--;
+            }
+
+            loadList(list) {
+                this.quotes = {};
+
+                list.forEach(item => {
+                    this.addQuote(item);
+                });
+            }
+
+            loadStorage() {
+                const storage = window.localStorage.getItem('quotebook-library');
+                let data;
+                
+                if (storage) {
+                    data = JSON.parse(storage);
+                } else {
+                    data = [];
+                }
+
+                this.loadList(data);
+            }
+
+            getRaw() {
+                let data = [];
+
+                Object.values(this.quotes).forEach(category => {
+                    Object.values(category).forEach(subcategory => {
+                        Object.values(subcategory).forEach(quote => {
+                            data.push(quote.getRaw());
+                        });
+                    });
+                });
+
+                return data;
+            }
+
+            saveStorage() {
+                const data = this.getRaw();
+
+                window.localStorage.setItem('quotebook-library', JSON.stringify(data));
+            }
+
+            renderList(query) {
+                while (quotesList.firstChild) {
+                    quotesList.firstChild.remove();
+                }
+
+                if (!Object.keys(this.quotes).length) {
+                    return;
+                }
+
+                const lowerLimit = this.page * this.pageLimit;
+                const upperLimit = (this.page + 1) * this.pageLimit;
+
+                let count = 0;
+                let nextExists = false;
+                let lastRound = false;
+
+                for (const category of Object.keys(this.quotes).sort()) {
+                    let displayCategory = false;
+
+                    const categoryHeader = createElement('H1', {
+                        parent: quotesList,
+                        elementClass: 'quotes-category',
+                        text: category === 'zzzmisc' ? 'Miscellaneous' : category
+                    });
+
+                    Object.keys(this.quotes[category]).sort().forEach(subcategory => {
+                        let subcategoryHeader;
+                        let displaySubcategory = false;
+
+                        if (subcategory !== '0misc') {
+                            subcategoryHeader = createElement('H2', {
+                                parent: quotesList,
+                                elementClass: 'quotes-subcategory',
+                                text: subcategory
+                            });
+                        }
+
+                        const quotes = Object.values(this.quotes[category][subcategory]);
+
+                        for (let quoteIndex = 0; quoteIndex < quotes.length; quoteIndex++) {
+                            if (count >= upperLimit) {
+                                lastRound = true;
+                            }
+
+                            const quote = quotes[quoteIndex];
+
+                            const matches = [
+                                quote.author,
+                                quote.reference,
+                                quote.text,
+                                quote.category,
+                                quote.subcategory
+                            ].some(field => {
+                                return new RegExp(query, 'ig').test(field);
+                            });
+
+                            if (!query || matches) {
+                                if (lastRound) {
+                                    nextExists = true;
+                                    break;
+                                } else {
+                                    count++;
+
+                                    if (count <= lowerLimit) continue;
+
+                                    quote.renderRow();
+                                    displayCategory = true;
+                                    
+                                    if (subcategory !== '0misc') {
+                                        displaySubcategory = true;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (!displaySubcategory) {
+                            if (subcategory !== '0misc') {
+                                subcategoryHeader.remove();
+                            }
+                        }
+                    });
+
+                    if (!displayCategory) {
+                        categoryHeader.remove();
+                    }
+                }
+
+                const pageButtonWrapper = createElement('DIV', {
+                    parent: quotesList,
+                    elementClass: 'page-button-wrapper'
+                });
+
+                const leftButton = createElement('BUTTON', {
+                    parent: pageButtonWrapper,
+                    elementClass: ['page-button', 'page-button-left'],
+                    eventListener: ['click', () => {
+                        if (this.page > 0) {
+                            this.page--;
+                            this.renderList(query);
+
+                            window.scrollTo(0, 0);
+                        }
+                    }]
+                });
+
+                if (this.page === 0) {
+                    leftButton.classList.add('disabled');
+                }
+
+                createElement('SPAN', {
+                    parent: leftButton,
+                    elementClass: 'page-button-text',
+                    text: '&#8592;'
+                });                
+
+                createElement('DIV', {
+                    parent: pageButtonWrapper,
+                    elementClass: 'filler'
+                });
+
+                const rightButton = createElement('BUTTON', {
+                    parent: pageButtonWrapper,
+                    elementClass: ['page-button', 'page-button-right'],
+                    eventListener: ['click', () => {
+                        if (nextExists) {
+                            this.page++;
+                            this.renderList(query);
+
+                            window.scrollTo(0, 0);
+                        }
+                    }]
+                });
+
+                if (!nextExists) {
+                    rightButton.classList.add('disabled');
+                }
+                
+                createElement('SPAN', {
+                    parent: rightButton,
+                    elementClass: 'page-button-text',
+                    text: '&#8594;'
+                });
+            }
+        }
+
+        class Quote {
+            constructor(author, reference, text, link, category, subcategory) {
+                this.author = author;
+                this.reference = reference;
+                this.text = text;
+                this.link = link;
+                this.category = category;
+                this.subcategory = subcategory;
+
+                this.library = undefined;
+            }
+
+            getRaw() {
+                return {
+                    author: this.author,
+                    reference: this.reference,
+                    text: this.text,
+                    link: this.link,
+                    category: this.category,
+                    subcategory: this.subcategory
+                };
+            }
+
+            setProperty(property, value) {
+                this[property] = value;
+                this.library.saveStorage();
+            }
+
+            renderRow() {
+                const rowElement = createElement('DIV', {
+                    parent: quotesList,
+                    elementClass: 'quote'
+                });
+
+                createElement('DIV', {
+                    parent: rowElement,
+                    elementClass: 'quote-text',
+                    text: this.text,
+                    eventListener: ['click', this.renderDetails.bind(this)],
+                });
+
+                const reference = createElement('DIV', {
+                    parent: rowElement,
+                    elementClass: 'quote-reference',
+                    text: '―'
+                });
+
+                if (this.author) {
+                    createElement('SPAN', {
+                        parent: reference,
+                        elementClass: 'reference-author',
+                        text: this.author + (this.reference ? ', ' : '')
+                    });
+                }
+
+                if (this.link) {
+                    createElement('A', {
+                        parent: createElement('SPAN', {
+                            parent: reference,
+                            elementClass: 'reference-source'
+                        }),
+                        text: this.reference,
+                        elementClass: 'link',
+                        attributes: {
+                            'href': this.link,
+                            'target': '_blank'
+                        }
+                    });
+                } else {
+                    createElement('SPAN', {
+                        parent: reference,
+                        elementClass: 'reference-source',
+                        text: this.reference
+                    });
+                }
+
+                return rowElement;
+            }
+
+            renderDetails() {
+                let originalScroll = window.scrollY;
+
+                while (detailsView.firstChild) {
+                    detailsView.firstChild.remove();
+                }
+
+                createElement('DIV', {
+                    parent: detailsView,
+                    elementClass: 'back-arrow',
+                    text: '&#8592;',
+                    eventListener: ['click', () => {
+                        this.library.renderList(searchInput.value);
+
+                        detailsView.classList.add('hide');
+                        mainView.classList.remove('hide');
+
+                        window.scrollTo(0, originalScroll);
+                    }]
+                });
+
+                createElement('H1', {
+                    parent: detailsView,
+                    text: 'Author',
+                    elementClass: 'details-input-label'
+                });
+
+                const authorInput = createElement('INPUT', {
+                    parent: detailsView,
+                    elementClass: 'details-input',
+                    attributes: {
+                        type: 'text',
+                        value: this.author
+                    },
+                    eventListener: ['change', () => {
+                        this.author = authorInput.value;
+                        this.library.renderList();
+                        this.library.saveStorage();
+                    }]
+                });
+
+                createElement('H1', {
+                    parent: detailsView,
+                    text: 'Reference',
+                    elementClass: 'details-input-label'
+                });
+
+                const referenceInput = createElement('INPUT', {
+                    parent: detailsView,
+                    elementClass: 'details-input',
+                    attributes: {
+                        type: 'text',
+                        value: this.reference
+                    },
+                    eventListener: ['change', () => {
+                        this.reference = referenceInput.value;
+                        
+                        let link = linkScripture(referenceInput.value);
+
+                        if (link) {
+                            this.link = link;
+                            linkInput.value = link;
+                        }
+
+                        this.library.renderList();
+                        this.library.saveStorage();
+                    }]
+                });
+
+                createElement('H1', {
+                    parent: detailsView,
+                    text: 'Text',
+                    elementClass: 'details-input-label'
+                });
+
+                const quoteInput = createElement('TEXTAREA', {
+                    parent: detailsView,
+                    elementClass: 'details-textarea',
+                    attributes: {
+                        rows: 4
+                    },
+                    text: this.text,
+                    eventListener: ['change', () => {
+                        this.text = quoteInput.value;
+                        this.library.renderList();
+                        this.library.saveStorage();
+                    }]
+                });
+
+                createElement('H1', {
+                    parent: detailsView,
+                    text: 'Link',
+                    elementClass: 'details-input-label'
+                });
+
+                const linkInput = createElement('INPUT', {
+                    parent: detailsView,
+                    elementClass: 'details-input',
+                    attributes: {
+                        type: 'text',
+                        value: this.link
+                    },
+                    eventListener: ['change', () => {
+                        this.link = linkInput.value;
+                        this.library.renderList();
+                        this.library.saveStorage();
+                    }]
+                });
+
+                createElement('H1', {
+                    parent: detailsView,
+                    text: 'Category',
+                    elementClass: 'details-input-label'
+                });
+
+                const categoryInput = createElement('INPUT', {
+                    parent: detailsView,
+                    elementClass: 'details-input',
+                    attributes: {
+                        type: 'text',
+                        value: this.category === 'zzzmisc' ? '' : this.category
+                    },
+                    eventListener: [['focus', 'keyup'], () => {
+                        while (categorySelect.firstChild) {
+                            categorySelect.firstChild.remove();
+                        }
+
+                        let categories = Object.keys(this.library.quotes).filter(category => {
+                            return category.toLowerCase().startsWith(categoryInput.value.toLowerCase());
+                        });
+
+                        categories = categories.filter(category => category !== 'zzzmisc').sort();
+
+                        if (categories.length) {
+                            categories.forEach(category => {
+                                createElement('DIV', {
+                                    parent: categorySelect,
+                                    elementClass: 'select-item',
+                                    text: category,
+                                    eventListener: ['click', () => {
+                                        categoryInput.value = category;
+                                    }]
+                                });
+                            });
+
+                            categorySelect.classList.remove('hide');
+                            categorySelect.style.top = categoryInput.offsetTop + 70 + 'px';
+                        }
+                    }]
+                });
+
+                const categorySelect = createElement('DIV', {
+                    parent: detailsView,
+                    elementClass: ['hide', 'select-wrapper']
+                });
+
+                categoryInput.addEventListener('focusout', () => {
+                    setTimeout(() => {
+                        this.category = categoryInput.value || 'zzzmisc';
+                        this.library.saveStorage();
+                        this.library.loadStorage();
+                        this.library.renderList();
+
+                        categorySelect.classList.add('hide');
+                    }, 1);
+                }, false);
+
+                createElement('H1', {
+                    parent: detailsView,
+                    text: 'Subcategory',
+                    elementClass: 'details-input-label'
+                });
+
+                const subcategoryInput = createElement('INPUT', {
+                    parent: detailsView,
+                    elementClass: 'details-input',
+                    attributes: {
+                        type: 'text',
+                        value: this.subcategory === '0misc' ? '' : this.subcategory
+                    },
+                    eventListener: [['focus', 'keyup'], () => {
+                        while (subcategorySelect.firstChild) {
+                            subcategorySelect.firstChild.remove();
+                        }
+
+                        let subcategories = [];
+
+                        if (categoryInput.value in library.quotes) {
+                            Object.keys(library.quotes[categoryInput.value]).forEach(subcategory => {
+                                if (subcategory.toLowerCase().startsWith(subcategoryInput.value.toLowerCase())) {
+                                    subcategories.push(subcategory);
+                                }
+                            });
+                        }
+
+                        subcategories = subcategories.filter(subcategory => subcategory !== '0misc').sort();
+
+                        if (subcategories.length) {
+                            subcategories.forEach(subcategory => {
+                                createElement('DIV', {
+                                    parent: subcategorySelect,
+                                    elementClass: 'select-item',
+                                    text: subcategory,
+                                    eventListener: ['click', () => {
+                                        subcategoryInput.value = subcategory;
+
+                                        this.subcategory = subcategoryInput.value || '0misc';
+                                        this.library.saveStorage();
+                                        this.library.loadStorage();
+                                        this.library.renderList();
+                                    }]
+                                });
+                            });
+
+                            subcategorySelect.classList.remove('hide');
+                            subcategorySelect.style.top = subcategoryInput.offsetTop - 12 - subcategorySelect.offsetHeight + 'px';
+                        }
+                    }]
+                });
+
+                const subcategorySelect = createElement('DIV', {
+                    parent: detailsView,
+                    elementClass: ['hide', 'select-wrapper']
+                });
+
+                subcategoryInput.addEventListener('focusout', () => {
+                    setTimeout(() => {
+                        this.subcategory = subcategoryInput.value || '0misc';
+                        this.library.saveStorage();
+                        this.library.loadStorage();
+                        this.library.renderList();
+
+                        subcategorySelect.classList.add('hide');
+                    }, 1);
+                }, false);
+
+                createElement('BUTTON', {
+                    parent: detailsView,
+                    elementClass: 'details-copy',
+                    text: 'Copy',
+                    eventListener: ['click', () => {
+                        let text = this.text;
+
+                        const reference = [this.author, this.reference].filter(x => x).join(', ');
+
+                        if (reference) {
+                            text += ` (${reference})`;
+                        }
+
+                        quoteInput.innerText = text;
+                        quoteInput.select();
+                        quoteInput.setSelectionRange(0, 99999);
+
+                        document.execCommand('copy');
+
+                        this.library.renderList(searchInput.value);
+
+                        mainView.classList.remove('hide');
+                        detailsView.classList.add('hide');
+
+                        window.scrollTo(0, originalScroll);
+                    }]
+                });
+
+                createElement('BUTTON', {
+                    parent: detailsView,
+                    elementClass: 'details-delete',
+                    text: 'Delete',
+                    eventListener: ['click', () => {
+                        confirmPrompt('Are you sure?', 'Yes', 'No', detailsView).then(response => {
+                            if (response) {
+                                this.library.removeQuote(this);
+                                this.library.renderList(searchInput.value);
+
+                                mainView.classList.remove('hide');
+                                detailsView.classList.add('hide');
+
+                                window.scrollTo(0, originalScroll);
+                            }
+                        });
+                    }]
+                });
+
+                window.scrollTo(0, 0);
+
+                mainView.classList.add('hide');
+                detailsView.classList.remove('hide');
+            }
+        }
+
+        const library = new Library();
+
+        library.loadStorage();
+        library.renderList();
+
+        quoteButton.addEventListener('click', () => {
+            let originalScroll = window.scrollY;
+
+            while (addView.firstChild) {
+                addView.firstChild.remove();
+            }
+
+            createElement('H1', {
+                parent: addView,
+                text: 'Author',
+                elementClass: 'add-input-label'
+            });
+
+            const authorInput = createElement('INPUT', {
+                parent: addView,
+                elementClass: 'add-input',
+                attributes: {
+                    type: 'text'
+                }
+            });
+
+            createElement('H1', {
+                parent: addView,
+                text: 'Reference',
+                elementClass: 'add-input-label'
+            });
+
+            const referenceInput = createElement('INPUT', {
+                parent: addView,
+                elementClass: 'add-input',
+                attributes: {
+                    type: 'text'
+                },
+                eventListener: ['change', () => {
+                    const link = linkScripture(referenceInput.value);
+
+                    if (link) {
+                        linkInput.value = link;
+                    }
+                }]
+            });
+
+            createElement('H1', {
+                parent: addView,
+                text: 'Text',
+                elementClass: 'add-input-label'
+            });
+
+            const quoteInput = createElement('TEXTAREA', {
+                parent: addView,
+                elementClass: 'add-textarea',
+                attributes: {
+                    rows: 4
+                }
+            });
+
+            createElement('H1', {
+                parent: addView,
+                text: 'Link',
+                elementClass: 'add-input-label'
+            });
+
+            const linkInput = createElement('INPUT', {
+                parent: addView,
+                elementClass: 'add-input',
+                attributes: {
+                    type: 'text'
+                }
+            });
+
+            createElement('H1', {
+                parent: addView,
+                text: 'Category',
+                elementClass: 'add-input-label'
+            });
+
+            const categoryInput = createElement('INPUT', {
+                parent: addView,
+                elementClass: 'add-input',
+                attributes: {
+                    type: 'text'
+                },
+                eventListener: [['focus', 'keyup'], () => {
+                    while (categorySelect.firstChild) {
+                        categorySelect.firstChild.remove();
+                    }
+
+                    let categories = Object.keys(library.quotes).filter(category => {
+                        return category.toLowerCase().startsWith(categoryInput.value.toLowerCase());
+                    });
+
+                    categories = categories.filter(category => category !== 'zzzmisc').sort();
+
+                    if (categories.length) {
+                        categories.forEach(category => {
+                            createElement('DIV', {
+                                parent: categorySelect,
+                                elementClass: 'select-item',
+                                text: category,
+                                eventListener: ['click', () => {
+                                    categoryInput.value = category;
+                                }]
+                            });
+                        });
+
+                        categorySelect.classList.remove('hide');
+                        categorySelect.style.top = categoryInput.offsetTop + 70 + 'px';
+                    }
+                }]
+            });
+
+            const categorySelect = createElement('DIV', {
+                parent: addView,
+                elementClass: ['hide', 'select-wrapper']
+            });
+
+            categoryInput.addEventListener('focusout', () => {
+                setTimeout(() => {
+                    categorySelect.classList.add('hide');
+                }, 1);
+            }, false);
+
+            createElement('H1', {
+                parent: addView,
+                text: 'Subcategory',
+                elementClass: 'add-input-label'
+            });
+
+            const subcategoryInput = createElement('INPUT', {
+                parent: addView,
+                elementClass: 'add-input',
+                attributes: {
+                    type: 'text'
+                },
+                eventListener: [['focus', 'keyup'], () => {
+                    while (subcategorySelect.firstChild) {
+                        subcategorySelect.firstChild.remove();
+                    }
+
+                    let subcategories = [];
+
+                    if (categoryInput.value in library.quotes) {
+                        Object.keys(library.quotes[categoryInput.value]).forEach(subcategory => {
+                            if (subcategory.toLowerCase().startsWith(subcategoryInput.value.toLowerCase())) {
+                                subcategories.push(subcategory);
+                            }
+                        });
+                    }
+
+                    subcategories = subcategories.filter(subcategory => subcategory !== '0misc').sort();
+
+                    if (subcategories.length) {
+                        subcategories.forEach(subcategory => {
+                            createElement('DIV', {
+                                parent: subcategorySelect,
+                                elementClass: 'select-item',
+                                text: subcategory,
+                                eventListener: ['click', () => {
+                                    subcategoryInput.value = subcategory;
+                                }]
+                            });
+                        });
+
+                        subcategorySelect.classList.remove('hide');
+                        subcategorySelect.style.top = subcategoryInput.offsetTop - 12 - subcategorySelect.offsetHeight + 'px';
+                    }
+                }]
+            });
+
+            const subcategorySelect = createElement('DIV', {
+                parent: addView,
+                elementClass: ['hide', 'select-wrapper']
+            });
+
+            subcategoryInput.addEventListener('focusout', () => {
+                setTimeout(() => {
+                    subcategorySelect.classList.add('hide');
+                }, 1);
+            }, false);
+
+            const buttonWrapper = createElement('DIV', {
+                parent: addView,
+                elementClass: 'add-button-wrapper'
+            });
+
+            createElement('BUTTON', {
+                parent: buttonWrapper,
+                elementClass: 'add-button',
+                text: 'Save',
+                eventListener: ['click', () => {
+                    if (authorInput.value || referenceInput.value) {
+                        const quote = new Quote(
+                            authorInput.value,
+                            referenceInput.value,
+                            quoteInput.value,
+                            linkInput.value,
+                            categoryInput.value || 'zzzmisc',
+                            subcategoryInput.value || '0misc'
+                        );
+
+                        library.addQuote(quote);
+                        library.saveStorage();
+                        library.renderList(searchInput.value);
+                    }
+
+                    addView.classList.add('hide');
+                    mainView.classList.remove('hide');
+
+                    window.scrollTo(0, originalScroll);
+                }]
+            });
+
+            createElement('BUTTON', {
+                parent: buttonWrapper,
+                elementClass: 'add-button',
+                text: 'Discard',
+                eventListener: ['click', () => {
+                    library.renderList(searchInput.value);
+
+                    addView.classList.add('hide');
+                    mainView.classList.remove('hide');
+
+                    window.scrollTo(0, originalScroll);
+                }]
+            });
+
+
+            window.scrollTo(0, 0);
+
+            addView.classList.remove('hide');
+            mainView.classList.add('hide');
+        }, false);
+
+        searchInput.addEventListener('keyup', e => {
+            if (e.keyCode === 13) {
+                searchInput.blur();
+            } else {
+                library.loadStorage();
+                library.page = 0;
+                library.renderList(searchInput.value);
+
+                window.scrollTo(0, 0);
+            }
+        }, false);
+
+        settingsButton.addEventListener('click', () => {
+            let originalScroll = window.scrollY;
+
+            window.scrollTo(0, 0);
+
+            while (settingsView.firstChild) {
+                settingsView.firstChild.remove();
+            }
+
+            createElement('DIV', {
+                parent: settingsView,
+                elementClass: 'back-arrow',
+                text: '&#8592;',
+                eventListener: ['click', () => {
+                    library.renderList(searchInput.value);
+
+                    settingsView.classList.add('hide');
+                    mainView.classList.remove('hide');
+
+                    window.scrollTo(0, originalScroll);
+                }]
+            });
+
+            createElement('H1', {
+                parent: settingsView,
+                text: 'Settings',
+                elementClass: 'settings-title'
+            });
+
+            createElement('H2', {
+                parent: settingsView,
+                text: 'Default Language',
+                elementClass: 'settings-header'
+            });
+
+            const languageInput = createElement('DIV', {
+                parent: settingsView,
+                elementClass: 'language-input',
+                text: window.localStorage.getItem('settings-language') || 'English',
+                eventListener: ['click', e => {
+                    e.stopPropagation();
+
+                    while (languageSelect.firstChild) {
+                        languageSelect.firstChild.remove();
+                    }
+
+                    const languages = ['English', 'Portuguese', 'Spanish', 'Japanese'];
+
+                    languages.forEach(language => {
+                        createElement('DIV', {
+                            parent: languageSelect,
+                            elementClass: 'language-select-item',
+                            text: language,
+                            eventListener: ['click', () => {
+                                languageInput.innerText = language;
+                                window.localStorage.setItem('settings-language', language);
+                            }]
+                        });
+                    });
+
+                    languageSelect.classList.remove('hide');
+                    languageSelect.style.top = languageInput.offsetTop + 70 + 'px';
+                }]
+            });
+
+            window.addEventListener('click', e => {
+                languageSelect.classList.add('hide');
+            }, false);
+
+            const languageSelect = createElement('DIV', {
+                parent: settingsView,
+                elementClass: ['hide', 'language-select-wrapper']
+            });
+
+            languageInput.addEventListener('focusout', () => {
+                setTimeout(() => {
+                    languageSelect.classList.add('hide');
+                }, 1);
+            }, false);
+
+            createElement('H2', {
+                parent: settingsView,
+                text: 'Page Limit',
+                elementClass: 'settings-header'
+            });
+
+            const pageLimitInput = createElement('INPUT', {
+                parent: settingsView,
+                elementClass: 'language-input',
+                attributes: {
+                    value: window.localStorage.getItem('settings-page-limit') || defaultPageLimit,
+                    type: 'number'
+                },
+                eventListener: ['change', () => {
+                    const limit = Math.abs(parseInt(pageLimitInput.value));
+
+                    if (limit) {
+                        library.pageLimit = limit;
+                        window.localStorage.setItem('settings-page-limit', limit);
+                    } else {
+                        pageLimitInput.value = defaultPageLimit;
+                        library.pageLimit = defaultPageLimit;
+                        window.localStorage.setItem('settings-page-limit', defaultPageLimit);
+                    }
+                }]
+            });
+
+            createElement('H2', {
+                parent: settingsView,
+                text: 'Import',
+                elementClass: 'settings-header'
+            });
+
+            createElement('BUTTON', {
+                parent: settingsView,
+                text: 'Open File',
+                elementClass: 'settings-button',
+                eventListener: ['click', () => {
+                    const fileInput = createElement('INPUT', {
+                        parent: settingsView,
+                        elementClass: 'hide',
+                        attributes: {
+                            type: 'file',
+                            accept: '.quotes'
+                        },
+                        eventListener: ['change', e => {
+                            const file = e.target.files[0];
+
+                            if (!file) return;
+
+                            const reader = new FileReader();
+
+                            reader.onload = e => {
+                                confirmPrompt('Replace current library or just add?', 'Overwrite', 'Add', settingsView).then(response => {
+                                    if (response === true) {
+                                        const contents = e.target.result;
+
+                                        library.page = 0;
+
+                                        library.loadList(JSON.parse(contents));
+                                        library.renderList();
+                                        library.saveStorage();
+
+                                        window.scrollTo(0, 0);
+
+                                        settingsView.classList.add('hide');
+                                        mainView.classList.remove('hide');
+                                    } else if (response === false) {
+                                        const contents = JSON.parse(e.target.result);
+
+                                        contents.forEach(item => {
+                                            library.addQuote(item);
+                                        });
+
+                                        library.page = 0;
+
+                                        library.renderList();
+                                        library.saveStorage();
+
+                                        window.scrollTo(0, 0);
+
+                                        settingsView.classList.add('hide');
+                                        mainView.classList.remove('hide');
+                                    }
+                                });
+                            };
+
+                            reader.readAsText(file);
+                        }]
+                    });
+                    fileInput.click();
+                    fileInput.remove();
+                }]
+            });
+
+            createElement('H2', {
+                parent: settingsView,
+                text: 'Export',
+                elementClass: 'settings-header'
+            });
+
+            createElement('BUTTON', {
+                parent: settingsView,
+                text: 'Save',
+                elementClass: 'settings-button',
+                eventListener: ['click', () => {
+                    const data = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(library.getRaw()));
+                    
+                    const link = createElement('A', {
+                        parent: settingsView,
+                        elementClass: 'hide',
+                        attributes: {
+                            href: data,
+                            download: 'backup.quotes'
+                        }
+                    });
+
+                    link.click();
+                    link.remove();
+                }]
+            });
+
+            mainView.classList.add('hide');
+            settingsView.classList.remove('hide');
+        });
+
+        function confirmPrompt(header, yesLabel, noLabel, view) {
+            confirmationView.classList.remove('hide');
+            view.classList.add('hide');
+
+            while (confirmationView.firstChild) {
+                confirmationView.firstChild.remove();
+            }
+
+            return new Promise(resolve => {
+                createElement('DIV', {
+                    parent: confirmationView,
+                    elementClass: 'back-arrow',
+                    text: '&#8592;',
+                    eventListener: ['click', () => {
+                        view.classList.remove('hide');
+                        confirmationView.classList.add('hide');
+
+                        resolve();
+                    }]
+                });
+
+                createElement('H1', {
+                    parent: confirmationView,
+                    ID: 'confirmation-header',
+                    text: header
+                });
+
+                const wrapper = createElement('DIV', {
+                    parent: confirmationView,
+                    elementClass: 'save-discard-buttons'
+                });
+
+                createElement('BUTTON', {
+                    parent: wrapper,
+                    ID: 'confirmation-yes',
+                    elementClass: 'confirm-button',
+                    text: yesLabel,
+                    eventListener: ['click', () => {
+                        view.classList.remove('hide');
+                        confirmationView.classList.add('hide');
+
+                        resolve(true);
+                    }]
+                });
+
+                createElement('BUTTON', {
+                    parent: wrapper,
+                    ID: 'confirmation-no',
+                    elementClass: 'discard-button',
+                    text: noLabel,
+                    eventListener: ['click', () => {
+                        view.classList.remove('hide');
+                        confirmationView.classList.add('hide');
+
+                        resolve(false);
+                    }]
+                });
+            });
+        }
+
+    </script>
+
+</body>
+
+</html>
