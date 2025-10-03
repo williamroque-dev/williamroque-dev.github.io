@@ -404,13 +404,13 @@
         }
 
         .confirm-button {
-            border: solid .15em #ff5757;
-            background: white;
-            color: #ff5757;
+            border: none;
+            background: #ff5757;;
+            color: white;
         }
 
         .discard-button {
-            border: solid .15em #000;
+            border: none;
             background: #000;
             color: white;
         }
@@ -1869,7 +1869,7 @@
 
             searchInput.addEventListener('keyup', () => {
                 const viewport = window.visualViewport;
-                const newBottom = window.innerHeight - viewport.height - viewport.offsetTop + 40;
+                const newBottom = window.innerHeight - viewport.height - viewport.offsetTop + 60;
                 searchBar.style.transform = `translateY(-${newBottom}px)`;
             }, false);
         }
