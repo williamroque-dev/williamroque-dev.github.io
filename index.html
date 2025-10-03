@@ -1872,6 +1872,10 @@
                 const newBottom = window.innerHeight - viewport.height - viewport.offsetTop + 60;
                 searchBar.style.transform = `translateY(-${newBottom}px)`;
             }, false);
+
+            searchInput.addEventListener('focusout', () => {
+                searchBar.style.transform = '';
+            }, false);
         }
 
         function confirmPrompt(header, yesLabel, noLabel, view) {
