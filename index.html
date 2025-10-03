@@ -423,19 +423,21 @@
 
         .select-wrapper {
             width: 80%;
-            background: black;
-            max-height: 8em;
+            background: rgb(255, 255, 255);
+            border: solid 2px #212121;
+            border-radius: 10px;
+            max-height: 160px;
             position: absolute;
-            font-size: 1.4em;
-            color: #fff;
+            font-size: 1.3em;
+            color: black;
             font-family: 'SF Pro', 'Open Sans', sans-serif;
             overflow-y: scroll;
         }
 
         .select-item {
-            height: 3em;
+            height: 50px;
             width: 100%;
-            border-bottom: solid .2em #fff;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             padding-left: 1em;
@@ -534,7 +536,7 @@
     <div id="main-view">
         <button id="settings-button"></button>
         <div id="search-bar">
-            <input id="search-input" type="text" placeholder="Search" autocomplete="off">
+            <input id="search-input" type="text" placeholder="Search" autocomplete="off" spellcheck="false">
             <button id="quote-button"></button>
         </div>
         <div id="quotes-list"> </div>
@@ -956,6 +958,10 @@
                     }
                 }
 
+                if (!nextExists && this.page === 0) {
+                    return;
+                }
+
                 const pageButtonWrapper = createElement('DIV', {
                     parent: quotesList,
                     elementClass: 'page-button-wrapper'
@@ -977,7 +983,7 @@
                 if (this.page === 0) {
                     leftButton.classList.add('disabled');
                 }
-
+                
                 addImage('backArrow', leftButton);
 
                 const rightButton = createElement('BUTTON', {
@@ -1481,7 +1487,7 @@
                         });
 
                         categorySelect.classList.remove('hide');
-                        categorySelect.style.top = categoryInput.offsetTop - categorySelect.offsetHeight + 70 + 'px';
+                        categorySelect.style.top = categoryInput.offsetTop + categoryInput.offsetHeight + 10 + 'px';
                     }
                 }]
             });
@@ -1539,7 +1545,7 @@
                         });
 
                         subcategorySelect.classList.remove('hide');
-                        subcategorySelect.style.top = subcategoryInput.offsetTop - subcategorySelect.offsetHeight + 85 + 'px';
+                        subcategorySelect.style.top = subcategoryInput.offsetTop + subcategoryInput.offsetHeight + 'px';
                     }
                 }]
             });
@@ -1584,6 +1590,32 @@
                     mainView.classList.remove('hide');
 
                     window.scrollTo(0, originalScroll);
+                }]
+            });
+
+            createElement('BUTTON', {
+                parent: buttonWrapper,
+                elementClass: 'add-button',
+                text: 'Save & Add',
+                eventListener: ['click', () => {
+                    if (authorInput.value || referenceInput.value) {
+                        const quote = new Quote(
+                            authorInput.value,
+                            referenceInput.value,
+                            quoteInput.value,
+                            linkInput.value,
+                            categoryInput.value || 'zzzmisc',
+                            subcategoryInput.value || '0misc'
+                        );
+
+                        library.addQuote(quote);
+                        library.saveStorage();
+                        library.renderList(searchInput.value);
+                    }
+
+                    quoteInput.value = '';
+
+                    window.scrollTo(0, 0);
                 }]
             });
 
