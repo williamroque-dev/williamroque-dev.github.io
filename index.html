@@ -1863,6 +1863,12 @@
         if ('visualViewport' in window) {
             window.visualViewport.addEventListener('resize', () => {
                 const viewport = window.visualViewport;
+
+                if (viewport.height === window.innerHeight) {
+                    searchBar.style.transform = 'translateY(0)';
+                    return;
+                }
+                
                 const newBottom = window.innerHeight - viewport.height - viewport.offsetTop;
                 searchBar.style.transform = `translateY(-${newBottom}px)`;
             }, false);
@@ -1874,7 +1880,7 @@
             }, false);
 
             searchInput.addEventListener('focusout', () => {
-                searchBar.style.transform = '';
+                searchBar.style.transform = 'translateY(0)';
             }, false);
         }
 
