@@ -17,6 +17,7 @@
             height: 100%;
             font-family: 'Baskerville', serif;
             zoom: 0.9;
+            box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -24,11 +25,14 @@
             margin: 0;
             padding: 0;
             width: 100%;
+            height: 100%;
+            overflow-y: scroll;
             display: flex;
             align-items: center;
             flex-direction: column;
             padding-top: 50px;
             padding-bottom: 50px;
+            box-sizing: border-box;
         }
 
         #search-bar {
@@ -535,12 +539,12 @@
 
 <body>
     <div id="main-view">
-        <button id="settings-button"></button>
-        <div id="search-bar">
-            <input id="search-input" type="text" placeholder="Search" autocomplete="off" spellcheck="false">
-            <button id="quote-button"></button>
-        </div>
         <div id="quotes-list"> </div>
+    </div>
+    <button id="settings-button"></button>
+    <div id="search-bar">
+        <input id="search-input" type="text" placeholder="Search" autocomplete="off" spellcheck="false">
+        <button id="quote-button"></button>
     </div>
     <div id="details-view" class="hide"></div>
     <div id="confirmation-view" class="hide"></div>
@@ -977,7 +981,7 @@
                             this.page--;
                             this.renderList(query);
 
-                            window.scrollTo(0, 0);
+                            mainView.scrollTo(0, 0);
                         }
                     }]
                 });
@@ -996,7 +1000,7 @@
                             this.page++;
                             this.renderList(query);
 
-                            window.scrollTo(0, 0);
+                            mainView.scrollTo(0, 0);
                         }
                     }]
                 });
@@ -1089,7 +1093,7 @@
             }
 
             renderDetails() {
-                let originalScroll = window.scrollY;
+                let originalScroll = mainView.scrollY;
 
                 while (detailsView.firstChild) {
                     detailsView.firstChild.remove();
@@ -1103,8 +1107,10 @@
 
                         detailsView.classList.add('hide');
                         mainView.classList.remove('hide');
+                        settingsButton.classList.remove('hide');
+                        searchBar.classList.remove('hide');
 
-                        window.scrollTo(0, originalScroll);
+                        mainView.scrollTo(0, originalScroll);
                     }]
                 });
                 addImage('backArrow', backArrow);
@@ -1346,9 +1352,11 @@
                         this.library.renderList(searchInput.value);
 
                         mainView.classList.remove('hide');
+                        settingsButton.classList.remove('hide');
+                        searchBar.classList.remove('hide');
                         detailsView.classList.add('hide');
 
-                        window.scrollTo(0, originalScroll);
+                        mainView.scrollTo(0, originalScroll);
                     }]
                 });
 
@@ -1363,17 +1371,21 @@
                                 this.library.renderList(searchInput.value);
 
                                 mainView.classList.remove('hide');
+                                settingsButton.classList.remove('hide');
+                                searchBar.classList.remove('hide');
                                 detailsView.classList.add('hide');
 
-                                window.scrollTo(0, originalScroll);
+                                mainView.scrollTo(0, originalScroll);
                             }
                         });
                     }]
                 });
 
-                window.scrollTo(0, 0);
+                mainView.scrollTo(0, 0);
 
                 mainView.classList.add('hide');
+                settingsButton.classList.add('hide');
+                searchBar.classList.add('hide');
                 detailsView.classList.remove('hide');
             }
         }
@@ -1384,7 +1396,7 @@
         library.renderList();
 
         quoteButton.addEventListener('click', () => {
-            let originalScroll = window.scrollY;
+            let originalScroll = mainView.scrollY;
 
             while (addView.firstChild) {
                 addView.firstChild.remove();
@@ -1590,8 +1602,10 @@
 
                     addView.classList.add('hide');
                     mainView.classList.remove('hide');
+                    settingsButton.classList.remove('hide');
+                    searchBar.classList.remove('hide');
 
-                    window.scrollTo(0, originalScroll);
+                    mainView.scrollTo(0, originalScroll);
                 }]
             });
 
@@ -1617,7 +1631,7 @@
 
                     quoteInput.value = '';
 
-                    window.scrollTo(0, 0);
+                    mainView.scrollTo(0, 0);
                 }]
             });
 
@@ -1630,16 +1644,20 @@
 
                     addView.classList.add('hide');
                     mainView.classList.remove('hide');
+                    settingsButton.classList.remove('hide');
+                    searchBar.classList.remove('hide');
 
-                    window.scrollTo(0, originalScroll);
+                    mainView.scrollTo(0, originalScroll);
                 }]
             });
 
 
-            window.scrollTo(0, 0);
+            mainView.scrollTo(0, 0);
 
             addView.classList.remove('hide');
             mainView.classList.add('hide');
+            settingsButton.classList.add('hide');
+            searchBar.classList.add('hide');
         }, false);
 
         searchInput.addEventListener('keyup', e => {
@@ -1650,14 +1668,14 @@
                 library.page = 0;
                 library.renderList(searchInput.value);
 
-                window.scrollTo(0, 0);
+                mainView.scrollTo(0, 0);
             }
         }, false);
 
         settingsButton.addEventListener('click', () => {
-            let originalScroll = window.scrollY;
+            let originalScroll = mainView.scrollY;
 
-            window.scrollTo(0, 0);
+            mainView.scrollTo(0, 0);
 
             while (settingsView.firstChild) {
                 settingsView.firstChild.remove();
@@ -1671,8 +1689,10 @@
 
                     settingsView.classList.add('hide');
                     mainView.classList.remove('hide');
+                    settingsButton.classList.remove('hide');
+                    searchBar.classList.remove('hide');
 
-                    window.scrollTo(0, originalScroll);
+                    mainView.scrollTo(0, originalScroll);
                 }]
             });
             addImage('backArrow', backArrow);
@@ -1797,10 +1817,12 @@
                                         library.renderList();
                                         library.saveStorage();
 
-                                        window.scrollTo(0, 0);
+                                        mainView.scrollTo(0, 0);
 
                                         settingsView.classList.add('hide');
                                         mainView.classList.remove('hide');
+                                        settingsButton.classList.remove('hide');
+                                        searchBar.classList.remove('hide');
                                     } else if (response === false) {
                                         const contents = JSON.parse(e.target.result);
 
@@ -1813,10 +1835,12 @@
                                         library.renderList();
                                         library.saveStorage();
 
-                                        window.scrollTo(0, 0);
+                                        mainView.scrollTo(0, 0);
 
                                         settingsView.classList.add('hide');
                                         mainView.classList.remove('hide');
+                                        settingsButton.classList.remove('hide');
+                                        searchBar.classList.remove('hide');
                                     }
                                 });
                             };
@@ -1857,34 +1881,10 @@
             });
 
             mainView.classList.add('hide');
+            settingsButton.classList.add('hide');
+            searchBar.classList.add('hide');
             settingsView.classList.remove('hide');
         });
-
-        if ('visualViewport' in window) {
-            window.visualViewport.addEventListener('resize', () => {
-                const viewport = window.visualViewport;
-
-                quotesList.innerText = `${viewport.height} ${window.innerHeight}`;
-
-                if (viewport.height === window.innerHeight) {
-                    searchBar.style.transform = 'translateY(0)';
-                    return;
-                }
-
-                const newBottom = window.innerHeight - viewport.height - viewport.offsetTop;
-                searchBar.style.transform = `translateY(-${newBottom}px)`;
-            }, false);
-
-            searchInput.addEventListener('keyup', () => {
-                const viewport = window.visualViewport;
-                const newBottom = window.innerHeight - viewport.height - viewport.offsetTop + 60;
-                searchBar.style.transform = `translateY(-${newBottom}px)`;
-            }, false);
-
-            searchInput.addEventListener('focusout', () => {
-                searchBar.style.transform = 'translateY(0)';
-            }, false);
-        }
 
         function confirmPrompt(header, yesLabel, noLabel, view) {
             confirmationView.classList.remove('hide');
