@@ -39,9 +39,10 @@
             font-size: 1.2em;
             display: flex;
             align-items: center;
-            position: fixed;
             gap: 5px;
+            position: fixed;
             bottom: 0;
+            left: 0;
             padding: 20px 20px;
             box-sizing: border-box;
             z-index: 99;
@@ -1859,24 +1860,19 @@
             settingsView.classList.remove('hide');
         });
 
-        searchInput.addEventListener('focus', () => {
-            const newBottom = window.innerHeight - visualViewport.height;
-            searchBarContainer.style.transform = `translateY(-${newBottom}px)`;
+        if ('visualViewport' in window) {
+            window.visualViewport.addEventListener('resize', () => {
+                const viewport = window.visualViewport;
+                const newBottom = window.innerHeight - viewport.height - viewport.offsetTop;
+                searchBar.style.transform = `translateY(-${newBottom}px)`;
+            }, false);
 
-            searchBar.style.position = 'fixed';
-            searchBar.style.bottom = 600 + 'px';
-        });
-
-        searchInput.addEventListener('keyup', () => {
-            searchBar.style.position = 'absolute';
-            searchBar.style.top = 400 + 'px';
-        });
-
-        searchInput.addEventListener('focusout', () => {
-            searchBar.style.position = 'fixed';
-            searchBar.style.top = '';
-            searchBar.style.bottom = '';
-        });
+            searchInput.addEventListener('keyup', () => {
+                const viewport = window.visualViewport;
+                const newBottom = window.innerHeight - viewport.height - viewport.offsetTop + 40;
+                searchBar.style.transform = `translateY(-${newBottom}px)`;
+            }, false);
+        }
 
         function confirmPrompt(header, yesLabel, noLabel, view) {
             confirmationView.classList.remove('hide');
