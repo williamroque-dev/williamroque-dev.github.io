@@ -1864,6 +1864,8 @@
             window.visualViewport.addEventListener('resize', () => {
                 const viewport = window.visualViewport;
 
+                quotesList.innerText = `${viewport.height} ${window.innerHeight}`;
+
                 if (viewport.height === window.innerHeight) {
                     searchBar.style.transform = 'translateY(0)';
                     return;
