@@ -321,7 +321,7 @@
             background: #ff5757;
         }
 
-        .back-arrow {
+        #back-arrow {
             width: 70px;
             height: 70px;
             border-radius: 40px;
@@ -333,9 +333,10 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
+            z-index: 99;
         }
 
-        .back-arrow svg {
+        #back-arrow svg {
             scale: 1.3;
         }
 
@@ -424,6 +425,51 @@
             flex-direction: column;
             align-items: center;
             padding-bottom: 30px;
+            transform: translateX(100%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+
+        .slide-left {
+            animation: slideLeft 0.3s forwards;
+        }
+
+        .slide-right {
+            animation: slideRight 0.3s forwards;
+        }
+
+        @keyframes slideLeft {
+            0% {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateX(0%);
+            }
+        }
+
+        @keyframes slideRight {
+            0% {
+                opacity: 0;
+                transform: translateX(-100%);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateX(0%);
+            }
+        }
+
+        .select-wrapper-container {
+            width: 100%;
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
         }
 
         .select-wrapper {
@@ -437,6 +483,7 @@
             color: black;
             font-family: 'SF Pro', 'Open Sans', sans-serif;
             overflow-y: scroll;
+            transform: translateY(10px);
         }
 
         .select-item {
@@ -454,11 +501,17 @@
         }
 
         #settings-view {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: scroll;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            padding-top: 3em;
-            padding-bottom: 3em;
+            flex-direction: column;
+            padding-top: 50px;
+            padding-bottom: 50px;
+            box-sizing: border-box;
         }
 
         .settings-title {
@@ -502,27 +555,6 @@
             padding: 0em 1em;
         }
 
-        .language-select-wrapper {
-            width: 80%;
-            background: #ffffff;
-            max-height: 8em;
-            position: absolute;
-            font-size: 1.4em;
-            color: #000000;
-            font-family: 'SF Pro', 'Open Sans', sans-serif;
-            overflow-y: scroll;
-            border: solid .12em #000;
-        }
-
-        .language-select-item {
-            height: 3em;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            padding-left: 1em;
-            box-sizing: border-box;
-        }
-
         input, textarea, button, select {
             -webkit-tap-highlight-color: transparent;
             outline: none;
@@ -542,6 +574,7 @@
         <div id="quotes-list"> </div>
     </div>
     <button id="settings-button"></button>
+    <div id="back-arrow" class="hide"></div>
     <div id="search-bar">
         <input id="search-input" type="text" placeholder="Search" autocomplete="off" spellcheck="false">
         <button id="quote-button"></button>
@@ -568,6 +601,7 @@
 
         const quotesList = document.querySelector('#quotes-list');
 
+        const backArrow = document.querySelector('#back-arrow');
         const quoteButton = document.querySelector('#quote-button');
         const settingsButton = document.querySelector('#settings-button');
 
@@ -575,6 +609,8 @@
         const searchBar = document.querySelector('#search-bar');
 
         const confirmationView = document.querySelector('#confirmation-view');
+
+        let backArrowCallback = null;
 
         const languages = {
             'English': 'eng',
@@ -693,6 +729,7 @@
 
         addImage('quote', quoteButton);
         addImage('settings', settingsButton);
+        addImage('backArrow', backArrow);
 
         function createElement(tag, parameters) {
             const { parent, elementClass, ID, text, eventListener, attributes } = parameters;
@@ -771,6 +808,23 @@
             }
 
             return link;
+        }
+
+        function hide(element) {
+            element.classList.remove('slide-left', 'slide-right');
+            element.classList.add('hide');
+        }
+
+        function show(element, direction) {
+            element.classList.remove('hide');
+
+            if (direction === 'left') {
+                element.classList.remove('slide-right');
+                element.classList.add('slide-left');
+            } else {
+                element.classList.remove('slide-left');
+                element.classList.add('slide-right');
+            }
         }
 
         class Library {
@@ -1099,21 +1153,17 @@
                     detailsView.firstChild.remove();
                 }
 
-                const backArrow = createElement('DIV', {
-                    parent: detailsView,
-                    elementClass: 'back-arrow',
-                    eventListener: ['click', () => {
-                        this.library.renderList(searchInput.value);
+                backArrowCallback = () => {
+                    this.library.renderList(searchInput.value);
 
-                        detailsView.classList.add('hide');
-                        mainView.classList.remove('hide');
-                        settingsButton.classList.remove('hide');
-                        searchBar.classList.remove('hide');
+                    hide(detailsView);
+                    show(mainView, 'right');
+                    show(settingsButton, 'right');
+                    show(searchBar, 'right');
 
-                        mainView.scrollTo(0, originalScroll);
-                    }]
-                });
-                addImage('backArrow', backArrow);
+                    mainView.scrollTo(0, originalScroll);
+                };
+                show(backArrow, 'left');
 
                 createElement('H1', {
                     parent: detailsView,
@@ -1240,13 +1290,15 @@
                             });
 
                             categorySelect.classList.remove('hide');
-                            categorySelect.style.top = categoryInput.offsetTop - categorySelect.offsetHeight + 70 + 'px';
                         }
                     }]
                 });
 
                 const categorySelect = createElement('DIV', {
-                    parent: detailsView,
+                    parent: createElement('DIV', {
+                        parent: detailsView,
+                        elementClass: 'select-wrapper-container'
+                    }),
                     elementClass: ['hide', 'select-wrapper']
                 });
 
@@ -1309,13 +1361,15 @@
                             });
 
                             subcategorySelect.classList.remove('hide');
-                            subcategorySelect.style.top = subcategoryInput.offsetTop - subcategorySelect.offsetHeight + 85 + 'px';
                         }
                     }]
                 });
 
                 const subcategorySelect = createElement('DIV', {
-                    parent: detailsView,
+                    parent: createElement('DIV', {
+                        parent: detailsView,
+                        elementClass: 'select-wrapper-container'
+                    }),
                     elementClass: ['hide', 'select-wrapper']
                 });
 
@@ -1351,10 +1405,11 @@
 
                         this.library.renderList(searchInput.value);
 
-                        mainView.classList.remove('hide');
-                        settingsButton.classList.remove('hide');
-                        searchBar.classList.remove('hide');
-                        detailsView.classList.add('hide');
+                        show(mainView, 'right');
+                        show(settingsButton, 'right');
+                        show(searchBar, 'right');
+
+                        hide(detailsView);
 
                         mainView.scrollTo(0, originalScroll);
                     }]
@@ -1370,10 +1425,11 @@
                                 this.library.removeQuote(this);
                                 this.library.renderList(searchInput.value);
 
-                                mainView.classList.remove('hide');
-                                settingsButton.classList.remove('hide');
-                                searchBar.classList.remove('hide');
-                                detailsView.classList.add('hide');
+                                show(mainView, 'right');
+                                show(settingsButton, 'right');
+                                show(searchBar, 'right');
+
+                                hide(detailsView);
 
                                 mainView.scrollTo(0, originalScroll);
                             }
@@ -1383,10 +1439,11 @@
 
                 mainView.scrollTo(0, 0);
 
-                mainView.classList.add('hide');
-                settingsButton.classList.add('hide');
-                searchBar.classList.add('hide');
-                detailsView.classList.remove('hide');
+                hide(mainView);
+                hide(settingsButton);
+                hide(searchBar);
+
+                show(detailsView, 'left');
             }
         }
 
@@ -1501,13 +1558,15 @@
                         });
 
                         categorySelect.classList.remove('hide');
-                        categorySelect.style.top = categoryInput.offsetTop + categoryInput.offsetHeight + 10 + 'px';
                     }
                 }]
             });
 
             const categorySelect = createElement('DIV', {
-                parent: addView,
+                parent: createElement('DIV', {
+                    parent: addView,
+                    elementClass: 'select-wrapper-container'
+                }),
                 elementClass: ['hide', 'select-wrapper']
             });
 
@@ -1559,13 +1618,15 @@
                         });
 
                         subcategorySelect.classList.remove('hide');
-                        subcategorySelect.style.top = subcategoryInput.offsetTop + subcategoryInput.offsetHeight + 'px';
                     }
                 }]
             });
 
             const subcategorySelect = createElement('DIV', {
-                parent: addView,
+                parent: createElement('DIV', {
+                    parent: addView,
+                    elementClass: 'select-wrapper-container'
+                }),
                 elementClass: ['hide', 'select-wrapper']
             });
 
@@ -1600,10 +1661,11 @@
                         library.renderList(searchInput.value);
                     }
 
-                    addView.classList.add('hide');
-                    mainView.classList.remove('hide');
-                    settingsButton.classList.remove('hide');
-                    searchBar.classList.remove('hide');
+                    hide(addView);
+
+                    show(mainView, 'right');
+                    show(settingsButton, 'right');
+                    show(searchBar, 'right');
 
                     mainView.scrollTo(0, originalScroll);
                 }]
@@ -1642,10 +1704,11 @@
                 eventListener: ['click', () => {
                     library.renderList(searchInput.value);
 
-                    addView.classList.add('hide');
-                    mainView.classList.remove('hide');
-                    settingsButton.classList.remove('hide');
-                    searchBar.classList.remove('hide');
+                    hide(addView);
+
+                    show(mainView, 'right');
+                    show(settingsButton, 'right');
+                    show(searchBar, 'right');
 
                     mainView.scrollTo(0, originalScroll);
                 }]
@@ -1654,10 +1717,11 @@
 
             mainView.scrollTo(0, 0);
 
-            addView.classList.remove('hide');
-            mainView.classList.add('hide');
-            settingsButton.classList.add('hide');
-            searchBar.classList.add('hide');
+            show(addView, 'left');
+
+            hide(mainView);
+            hide(settingsButton);
+            hide(searchBar);
         }, false);
 
         searchInput.addEventListener('keyup', e => {
@@ -1681,21 +1745,18 @@
                 settingsView.firstChild.remove();
             }
 
-            const backArrow = createElement('DIV', {
-                parent: settingsView,
-                elementClass: 'back-arrow',
-                eventListener: ['click', () => {
-                    library.renderList(searchInput.value);
+            backArrowCallback = () => {
+                library.renderList(searchInput.value);
 
-                    settingsView.classList.add('hide');
-                    mainView.classList.remove('hide');
-                    settingsButton.classList.remove('hide');
-                    searchBar.classList.remove('hide');
+                hide(settingsView);
 
-                    mainView.scrollTo(0, originalScroll);
-                }]
-            });
-            addImage('backArrow', backArrow);
+                show(mainView, 'right');
+                show(settingsButton, 'right');
+                show(searchBar, 'right');
+
+                mainView.scrollTo(0, originalScroll);
+            };
+            show(backArrow, 'left');
 
             createElement('H1', {
                 parent: settingsView,
@@ -1725,7 +1786,7 @@
                     languages.forEach(language => {
                         createElement('DIV', {
                             parent: languageSelect,
-                            elementClass: 'language-select-item',
+                            elementClass: 'select-item',
                             text: language,
                             eventListener: ['click', () => {
                                 languageInput.innerText = language;
@@ -1735,7 +1796,6 @@
                     });
 
                     languageSelect.classList.remove('hide');
-                    languageSelect.style.top = languageInput.offsetTop + 70 + 'px';
                 }]
             });
 
@@ -1744,8 +1804,11 @@
             }, false);
 
             const languageSelect = createElement('DIV', {
-                parent: settingsView,
-                elementClass: ['hide', 'language-select-wrapper']
+                parent: createElement('DIV', {
+                    parent: settingsView,
+                    elementClass: 'select-wrapper-container'
+                }),
+                elementClass: ['hide', 'select-wrapper']
             });
 
             languageInput.addEventListener('focusout', () => {
@@ -1819,10 +1882,11 @@
 
                                         mainView.scrollTo(0, 0);
 
-                                        settingsView.classList.add('hide');
-                                        mainView.classList.remove('hide');
-                                        settingsButton.classList.remove('hide');
-                                        searchBar.classList.remove('hide');
+                                        hide(settingsView);
+
+                                        show(mainView, 'right');
+                                        show(settingsButton, 'right');  
+                                        show(searchBar, 'right');
                                     } else if (response === false) {
                                         const contents = JSON.parse(e.target.result);
 
@@ -1837,10 +1901,11 @@
 
                                         mainView.scrollTo(0, 0);
 
-                                        settingsView.classList.add('hide');
-                                        mainView.classList.remove('hide');
-                                        settingsButton.classList.remove('hide');
-                                        searchBar.classList.remove('hide');
+                                        hide(settingsView);
+
+                                        show(mainView, 'right');
+                                        show(settingsButton, 'right');
+                                        show(searchBar, 'right');
                                     }
                                 });
                             };
@@ -1880,32 +1945,38 @@
                 }]
             });
 
-            mainView.classList.add('hide');
-            settingsButton.classList.add('hide');
-            searchBar.classList.add('hide');
-            settingsView.classList.remove('hide');
-        });
+            hide(mainView);
+            hide(settingsButton);
+            hide(searchBar);
+
+            show(settingsView, 'left');
+        }, false);
+
+        backArrow.addEventListener('click', () => {
+            if (backArrowCallback) {
+                backArrowCallback();
+            }
+
+            hide(backArrow);
+            backArrowCallback = null;
+        }, false);
 
         function confirmPrompt(header, yesLabel, noLabel, view) {
-            confirmationView.classList.remove('hide');
-            view.classList.add('hide');
+            show(confirmationView, 'left');
+            hide(view);
 
             while (confirmationView.firstChild) {
                 confirmationView.firstChild.remove();
             }
 
             return new Promise(resolve => {
-                const backArrow = createElement('DIV', {
-                    parent: confirmationView,
-                    elementClass: 'back-arrow',
-                    eventListener: ['click', () => {
-                        view.classList.remove('hide');
-                        confirmationView.classList.add('hide');
+                backArrowCallback = () => {
+                    show(view, 'right');
+                    hide(confirmationView);
 
-                        resolve();
-                    }]
-                });
-                addImage('backArrow', backArrow);
+                    resolve();
+                };
+                show(backArrow, 'left');
 
                 createElement('H1', {
                     parent: confirmationView,
@@ -1924,8 +1995,8 @@
                     elementClass: 'confirm-button',
                     text: yesLabel,
                     eventListener: ['click', () => {
-                        view.classList.remove('hide');
-                        confirmationView.classList.add('hide');
+                        hide(confirmationView);
+                        show(view, 'right');
 
                         resolve(true);
                     }]
@@ -1937,8 +2008,8 @@
                     elementClass: 'discard-button',
                     text: noLabel,
                     eventListener: ['click', () => {
-                        view.classList.remove('hide');
-                        confirmationView.classList.add('hide');
+                        hide(confirmationView);
+                        show(view, 'right');
 
                         resolve(false);
                     }]
