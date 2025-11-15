@@ -1,0 +1,75 @@
+{
+  "name": "Quotebook - Quote & Scripture Manager",
+  "short_name": "Quotebook",
+  "description": "A beautiful, offline-ready manager for quotes and scriptures with search, categories, and scripture linking.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007bff",
+  "orientation": "portrait-primary",
+  "scope": "./",
+  "id": "/",
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "icons": [
+    {
+      "src": "./assets/icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./assets/icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Quotebook main interface"
+    }
+  ],
+  "categories": ["productivity", "utilities", "education", "reference"],
+  "lang": "en",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "edge_side_panel": {},
+  "shortcuts": [
+    {
+      "name": "Add Quote",
+      "short_name": "Add Quote",
+      "description": "Quick add a new quote",
+      "url": "./?action=add",
+      "icons": [
+        {
+          "src": "./assets/icon.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Search Quotes",
+      "short_name": "Search",
+      "description": "Search your quotes",
+      "url": "./?action=search",
+      "icons": [
+        {
+          "src": "./assets/icon.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

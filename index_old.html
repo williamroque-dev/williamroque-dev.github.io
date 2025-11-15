@@ -1,0 +1,2342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Quotebook">
+    <link rel="icon" type="image/png" href="icon.png"> 
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <title>Quotebook</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Baskerville', serif;
+            zoom: 0.9;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #main-view {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: scroll;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            padding-top: 50px;
+            padding-bottom: 50px;
+            box-sizing: border-box;
+        }
+
+        #search-bar {
+            width: 100%;
+            height: 100px;
+            background: none;
+            font-family: 'Baskerville', serif;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            padding: 20px 20px;
+            box-sizing: border-box;
+            z-index: 99;
+        }
+
+        #quote-button {
+            height: 100%;
+            aspect-ratio: 1/1;
+            background: black;
+            border-radius: 100%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        #quote-button svg {
+            height: 100%;
+            width: 100%;
+        }
+
+        .image-wrapper {
+            width: 60%;
+            height: 60%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #settings-button {
+            background: #000;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 30px;
+            width: 45px;
+            height: 45px;
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            cursor: pointer;
+        }
+
+        #settings-button svg {
+            scale: 1.5;
+        }
+
+        #search-input {
+            flex: 1;
+            height: 100%;
+            background: #000;
+            border: solid .06em #fff;
+            border-radius: 100px;
+            font-size: 1.2em;
+            color: #ffffff;
+            font-family: 'SF Pro', 'Open Sans', sans-serif;
+            font-weight: 300;
+            padding: 0em 1em;
+        }
+
+        #quotes-list {
+            width: 80%;
+            padding-bottom: 3em;
+        }
+
+        .quotes-category {
+            font-size: 2.4em;
+            font-weight: 400;
+            color: #000;
+            margin-bottom: .5em;
+            border-top: solid .07em #b5b5b5;
+            padding-top: 0.5em;
+        }
+
+        .quotes-category:first-of-type {
+            border-top: none;
+            padding-top: 0em;
+            margin-top: 0em;
+        }
+
+        .quotes-subcategory {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #545454;
+            font-family: 'SF Pro', 'Open Sans', sans-serif;
+        }
+
+        .quote {
+            font-size: 1.3em;
+            margin-top: 1.4em;
+            cursor: pointer;
+        }
+
+        .quote-text {
+            background: #f8f8f8;
+            border-left: solid .3em #000;
+            padding: 1.1em;
+            line-height: 1.6em;
+            white-space: pre-line;
+        }
+
+        .quote-reference {
+            margin-top: .8em;
+        }
+
+        .reference-source {
+            font-style: italic;
+        }
+
+        .link {
+            color: #0097b2;
+            text-decoration: none;
+        }
+
+        button.page-button {
+            height: 1.4em;
+            width: 1.5em;
+            font-size: 3em;
+            background: none;
+            border: none;
+            filter: invert(1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .page-button:first-child {
+            justify-content: flex-start;
+        }
+
+        .page-button:last-child {
+            justify-content: flex-end;
+        }
+        
+        .page-button svg {
+            scale: 1.6;
+        }
+
+        .page-button-wrapper {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-sizing: border-box;
+            margin-top: 1em;
+        }
+
+        .disabled {
+            filter: none !important;
+            cursor: default !important;
+        }
+
+        button {
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        .hide {
+            display: none !important;
+        }
+
+        .details-input {
+            box-sizing: border-box;
+            width: 80%;
+            height: 2.6em;
+            background: #f8f8f8;
+            color: #000;
+            font-family: 'SF Pro', 'Open Sans', sans-serif;
+            border: none;
+            border-left: solid 0.17em #b5b5b5;
+            padding: 0em 1em;
+            font-family: 'Baskerville', serif;
+            font-size: 1.2em;
+        }
+
+        .details-input:focus {
+            border: solid .1em #000;
+            background: #fff;
+            font-family: 'SF Pro', 'Open Sans', sans-serif;
+        }
+
+        .details-textarea {
+            box-sizing: border-box;
+            width: 80%;
+            background: #f8f8f8;
+            font-size: 1.2em;
+            color: #000;
+            font-family: 'Baskerville', serif;
+            line-height: 1.5em;
+            border: none;
+            border-left: solid 0.17em #b5b5b5;
+            padding: 1em 1em !important;
+        }
+
+        .details-textarea:focus {
+            background: #fff;
+            border: solid .12em #000 !important;
+            font-family: 'SF Pro', 'Open Sans', sans-serif;
+        }
+
+        .details-input-label {
+            font-size: 2.4em;
+            font-weight: 400;
+            color: #000;
+            margin-top: 1em;
+            margin-bottom: .5em;
+            text-align: left;
+            width: 80%;
+        }
+
+        .add-input {
+            box-sizing: border-box;
+            width: 80%;
+            height: 2.6em;
+            background: transparent;
+            border: solid .1em #000;
+            font-size: 1.4em;
+            color: #000;
+            font-family: 'SF Pro', 'Open Sans', sans-serif;
+            padding: 0em 1em;
+        }
+
+        .add-textarea {
+            box-sizing: border-box;
+            width: 80%;
+            background: transparent;
+            border: solid .1em #000;
+            font-size: 1.4em;
+            color: #000;
+            font-family: 'SF Pro', 'Open Sans', sans-serif;
+            padding: 0em 1em;
+            padding: 1em 1em;
+            line-height: 1.5em;
+        }
+
+        .add-input-label {
+            font-size: 2.4em;
+            font-weight: 400;
+            color: #000;
+            margin-top: 1em;
+            margin-bottom: .5em;
+            text-align: left;
+            width: 80%;
+        }
+
+        .add-button-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding-bottom: 1.5em;
+            background: #fff;
+            gap: 10px;
+            margin-top: 40px;
+        }
+
+        .add-button {
+            width: 80%;
+            height: 60px;
+            border: none;
+            outline: none;
+            font-size: 1.2em;
+            background: #000;
+            color: white;
+            cursor: pointer;
+        }
+
+        .add-button:last-child {
+            background: #ff5757;
+        }
+
+        #back-arrow {
+            width: 70px;
+            height: 70px;
+            border-radius: 40px;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 99;
+        }
+
+        #back-arrow svg {
+            scale: 1.3;
+        }
+
+        #details-view {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 3em;
+            padding-bottom: 100px;
+        }
+
+        .details-copy {
+            width: 80%;
+            height: 60px;
+            border: none;
+            outline: none;
+            font-size: 1.2em;
+            background: #000;
+            color: white;
+            margin-top: 40px;
+        }
+
+        .details-delete {
+            width: 80%;
+            height: 60px;
+            border: none;
+            outline: none;
+            font-size: 1.2em;
+            background: #ff5757;
+            color: white;
+            margin-top: 10px;
+        }
+
+        #details-delete-wrapper {
+            position: fixed;
+            bottom: 0;
+            height: 6em;
+            width: 100%;
+            background: white;
+            border-top: solid .23em #d3d3d3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #confirmation-view {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #confirmation-header {
+            font-family: 'SF Pro', 'Open Sans', sans-serif;
+            font-size: 1.9em;
+            font-weight: 300;
+            color: #000;
+            text-align: center;
+            width: 70%;
+        }
+
+        .save-discard-buttons button {
+            font-size: 1.3em;
+            width: 6em;
+            height: 45px;
+            margin: .7em;
+            font-weight: 400;
+        }
+
+        .confirm-button {
+            border: none;
+            background: #ff5757;;
+            color: white;
+        }
+
+        .discard-button {
+            border: none;
+            background: #000;
+            color: white;
+        }
+
+        #add-view {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 30px;
+            transform: translateX(100%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+
+        .slide-left {
+            animation: slideLeft 0.3s forwards;
+        }
+
+        .slide-right {
+            animation: slideRight 0.3s forwards;
+        }
+
+        @keyframes slideLeft {
+            0% {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateX(0%);
+            }
+        }
+
+        @keyframes slideRight {
+            0% {
+                opacity: 0;
+                transform: translateX(-100%);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateX(0%);
+            }
+        }
+
+        .select-wrapper-container {
+            width: 100%;
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .select-wrapper {
+            width: 80%;
+            background: rgb(255, 255, 255);
+            border: solid 2px #212121;
+            border-radius: 10px;
+            max-height: 160px;
+            position: absolute;
+            font-size: 1.3em;
+            color: black;
+            font-family: 'SF Pro', 'Open Sans', sans-serif;
+            overflow-y: scroll;
+            transform: translateY(10px);
+        }
+
+        .select-item {
+            height: 50px;
+            width: 100%;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            padding-left: 1em;
+            box-sizing: border-box;
+        }
+
+        .select-item:last-child {
+            border-bottom: none;
+        }
+
+        #settings-view {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: scroll;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            padding-top: 50px;
+            padding-bottom: 50px;
+            box-sizing: border-box;
+        }
+
+        .settings-title {
+            font-size: 2.4em;
+            font-weight: 400;
+            color: #000;
+            margin-bottom: .5em;
+            padding-top: 0.5em;
+            width: 80%;
+        }
+
+        .settings-header {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #545454;
+            font-family: 'SF Pro', 'Open Sans', sans-serif;
+            width: 80%;
+        }
+
+        .settings-button {
+            width: 80%;
+            height: 3.1em;
+            border: none;
+            outline: none;
+            font-size: 1.2em;
+            background: #000;
+            color: white;
+        }
+
+        .language-input {
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+            width: 80%;
+            height: 2.6em;
+            background: transparent;
+            border: solid .1em #000;
+            font-size: 1.4em;
+            color: #000;
+            font-family: 'SF Pro', 'Open Sans', sans-serif;
+            padding: 0em 1em;
+        }
+
+        input, textarea, button, select {
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        * {
+            user-select: none;
+        }
+    </style>
+    <script>
+        history.scrollRestoration = 'manual';
+    </script>
+</head>
+
+<body>
+    <div id="main-view">
+        <div id="quotes-list"> </div>
+    </div>
+    <button id="settings-button"></button>
+    <div id="back-arrow" class="hide"></div>
+    <div id="search-bar">
+        <input id="search-input" type="text" placeholder="Search" autocomplete="off" spellcheck="false">
+        <button id="quote-button"></button>
+    </div>
+    <div id="details-view" class="hide"></div>
+    <div id="confirmation-view" class="hide"></div>
+    <div id="add-view" class="hide"> </div>
+    <div id="settings-view" class="hide"> </div>
+
+    <script>
+        const images = {
+            quote: '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h357l-80 80H200v560h560v-278l80-80v358q0 33-23.5 56.5T760-120H200Zm280-360ZM360-360v-170l367-367q12-12 27-18t30-6q16 0 30.5 6t26.5 18l56 57q11 12 17 26.5t6 29.5q0 15-5.5 29.5T897-728L530-360H360Zm481-424-56-56 56 56ZM440-440h56l232-232-28-28-29-28-231 231v57Zm260-260-29-28 29 28 28 28-28-28Z"/></svg>',
+            settings: '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M240-400q-33 0-56.5-23.5T160-480q0-33 23.5-56.5T240-560q33 0 56.5 23.5T320-480q0 33-23.5 56.5T240-400Zm240 0q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm240 0q-33 0-56.5-23.5T640-480q0-33 23.5-56.5T720-560q33 0 56.5 23.5T800-480q0 33-23.5 56.5T720-400Z"/></svg>',
+            backArrow: '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"/></svg>',
+            frontArrow: '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M647-440H160v-80h487L423-744l57-56 320 320-320 320-57-56 224-224Z"/></svg>'
+        };
+    </script>
+
+    <script>
+        const mainView = document.querySelector('#main-view');
+        const detailsView = document.querySelector('#details-view');
+        const addView = document.querySelector('#add-view');
+        const settingsView = document.querySelector('#settings-view');
+
+        const quotesList = document.querySelector('#quotes-list');
+
+        const backArrow = document.querySelector('#back-arrow');
+        const quoteButton = document.querySelector('#quote-button');
+        const settingsButton = document.querySelector('#settings-button');
+
+        const searchInput = document.querySelector('#search-input');
+        const searchBar = document.querySelector('#search-bar');
+
+        const confirmationView = document.querySelector('#confirmation-view');
+
+        let backArrowCallback = null;
+
+        const languages = {
+            'English': 'eng',
+            'Portuguese': 'por',
+            'Spanish': 'spa',
+            'Japanese': 'jpn'
+        };
+
+        const defaultPageLimit = 30;
+
+        const scriptures = {
+            ot: {
+                Genesis: 'gen',
+                Exodus: 'ex',
+                Leviticus: 'lev',
+                Numbers: 'num',
+                Deuteronomy: 'deut',
+                Joshua: 'josh',
+                Judges: 'judg',
+                Ruth: 'ruth',
+                '1 Samuel': '1-sam',
+                '2 Samuel': '2-sam',
+                '1 Kings': '1-kgs',
+                '2 Kings': '2-kgs',
+                '1 Chronicles': '1-chr',
+                '2 Chronicles': '2-chr',
+                Ezra: 'ezra',
+                Nehemiah: 'neh',
+                Esther: 'esth',
+                Job: 'job',
+                Psalms: 'ps',
+                Proverbs: 'prov',
+                Ecclesiastes: 'eccl',
+                'Song of Solomon': 'song',
+                Isaiah: 'isa',
+                Jeremiah: 'jer',
+                Lamentations: 'lam',
+                Ezekiel: 'ezek',
+                Daniel: 'dan',
+                Hosea: 'hosea',
+                Joel: 'joel',
+                Amos: 'amos',
+                Obadiah: 'obad',
+                Jonah: 'jonah',
+                Micah: 'micah',
+                Nahum: 'nahum',
+                Habakkuk: 'hab',
+                Zephaniah: 'zeph',
+                Haggai: 'hag',
+                Zechariah: 'zech',
+                Malachi: 'mal'
+            },
+            nt: {
+                Matthew: 'matt',
+                Mark: 'mark',
+                Luke: 'luke',
+                John: 'john',
+                Acts: 'acts',
+                Romans: 'rom',
+                '1 Corinthians': '1-cor',
+                '2 Corinthians': '2-cor',
+                Galatians: 'gal',
+                Ephesians: 'eph',
+                Philippians: 'philip',
+                Colossians: 'col',
+                '1 Thessalonians': '1-thes',
+                '2 Thessalonians': '2-thes',
+                '1 Timothy': '1-tim',
+                '2 Timothy': '2-tim',
+                Titus: 'titus',
+                Philemon: 'philem',
+                Hebrews: 'heb',
+                James: 'james',
+                '1 Peter': '1-pet',
+                '2 Peter': '2-pet',
+                '1 John': '1-jn',
+                '2 John': '2-jn',
+                '3 John': '3-jn',
+                Jude: 'jude',
+                Revelations: 'rev'
+            },
+            bofm: {
+                '1 Nephi': '1-ne',
+                '2 Nephi': '2-ne',
+                Jacob: 'jacob',
+                Enos: 'enos',
+                Jarom: 'jarom',
+                Omni: 'omni',
+                'Words of Mormon': 'w-of-m',
+                Mosiah: 'mosiah',
+                Alma: 'alma',
+                Helaman: 'hel',
+                '3 Nephi': '3-ne',
+                '4 Nephi': '4-ne',
+                Mormon: 'morm',
+                Ether: 'ether',
+                Moroni: 'moro'
+            },
+            'dc-testament': { 'D&C': 'dc' },
+            pgp: {
+                Moses: 'moses',
+                Abraham: 'abr',
+                'Joseph Smith Matthew': 'js-m',
+                'Joseph Smith History': 'js-h',
+                'Articles of Faith': 'a-of-f'
+            }
+        };
+
+        // IndexedDB wrapper class
+        class QuotebookDB {
+            constructor() {
+                this.dbName = 'QuotebookDB';
+                this.version = 1;
+                this.db = null;
+            }
+
+            async init() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(this.dbName, this.version);
+
+                    request.onerror = () => {
+                        reject(request.error);
+                    };
+
+                    request.onsuccess = () => {
+                        this.db = request.result;
+                        resolve();
+                    };
+
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+
+                        // Create stores if they don't exist
+                        if (!db.objectStoreNames.contains('quotes')) {
+                            const quotesStore = db.createObjectStore('quotes', { keyPath: 'id', autoIncrement: true });
+                            quotesStore.createIndex('category', 'category', { unique: false });
+                            quotesStore.createIndex('subcategory', 'subcategory', { unique: false });
+                        }
+
+                        if (!db.objectStoreNames.contains('settings')) {
+                            db.createObjectStore('settings', { keyPath: 'key' });
+                        }
+                    };
+                });
+            }
+
+            async getSettings(key, defaultValue = null) {
+                if (!this.db) await this.init();
+                
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction(['settings'], 'readonly');
+                    const store = transaction.objectStore('settings');
+                    const request = store.get(key);
+
+                    request.onsuccess = () => {
+                        const result = request.result;
+                        resolve(result ? result.value : defaultValue);
+                    };
+
+                    request.onerror = () => {
+                        reject(request.error);
+                    };
+                });
+            }
+
+            async setSettings(key, value) {
+                if (!this.db) await this.init();
+                
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction(['settings'], 'readwrite');
+                    const store = transaction.objectStore('settings');
+                    const request = store.put({ key, value });
+
+                    request.onsuccess = () => {
+                        resolve();
+                    };
+
+                    request.onerror = () => {
+                        reject(request.error);
+                    };
+                });
+            }
+
+            async getAllQuotes() {
+                if (!this.db) await this.init();
+                
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction(['quotes'], 'readonly');
+                    const store = transaction.objectStore('quotes');
+                    const request = store.getAll();
+
+                    request.onsuccess = () => {
+                        resolve(request.result);
+                    };
+
+                    request.onerror = () => {
+                        reject(request.error);
+                    };
+                });
+            }
+
+            async saveAllQuotes(quotes) {
+                if (!this.db) await this.init();
+                
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction(['quotes'], 'readwrite');
+                    const store = transaction.objectStore('quotes');
+                    
+                    // Clear existing quotes
+                    const clearRequest = store.clear();
+                    
+                    clearRequest.onsuccess = () => {
+                        // Add all quotes
+                        let pending = quotes.length;
+                        if (pending === 0) {
+                            resolve();
+                            return;
+                        }
+
+                        quotes.forEach(quote => {
+                            const addRequest = store.add(quote);
+                            addRequest.onsuccess = () => {
+                                pending--;
+                                if (pending === 0) {
+                                    resolve();
+                                }
+                            };
+                            addRequest.onerror = () => {
+                                reject(addRequest.error);
+                            };
+                        });
+                    };
+
+                    clearRequest.onerror = () => {
+                        reject(clearRequest.error);
+                    };
+                });
+            }
+
+            async addQuote(quote) {
+                if (!this.db) await this.init();
+                
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction(['quotes'], 'readwrite');
+                    const store = transaction.objectStore('quotes');
+                    const request = store.add(quote);
+
+                    request.onsuccess = () => {
+                        resolve(request.result);
+                    };
+
+                    request.onerror = () => {
+                        reject(request.error);
+                    };
+                });
+            }
+
+            async clearQuotes() {
+                if (!this.db) await this.init();
+                
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction(['quotes'], 'readwrite');
+                    const store = transaction.objectStore('quotes');
+                    const request = store.clear();
+
+                    request.onsuccess = () => {
+                        resolve();
+                    };
+
+                    request.onerror = () => {
+                        reject(request.error);
+                    };
+                });
+            }
+        }
+
+        // Create global database instance
+        const quotebookDB = new QuotebookDB();
+
+        function addImage(label, element) {
+            const imageWrapper = document.createElement('div');
+            imageWrapper.innerHTML = images[label];
+            imageWrapper.classList.add('image-wrapper');
+
+            element.appendChild(imageWrapper);
+        }
+
+        addImage('quote', quoteButton);
+        addImage('settings', settingsButton);
+        addImage('backArrow', backArrow);
+
+        function createElement(tag, parameters) {
+            const { parent, elementClass, ID, text, eventListener, attributes } = parameters;
+
+            const element = document.createElement(tag);
+
+            if (elementClass) {
+                if (Array.isArray(elementClass)) {
+                    elementClass.forEach(x => {
+                        element.classList.add(x);
+                    });
+                } else {
+                    element.classList.add(elementClass);
+                }
+            }
+
+            if (ID) {
+                element.setAttribute('id', ID);
+            }
+
+            if (parent) {
+                parent.appendChild(element);
+            }
+
+            if (eventListener) {
+                const [trigger, callback] = eventListener;
+
+                if (Array.isArray(trigger)) {
+                    trigger.forEach(type => {
+                        element.addEventListener(type, callback, false);
+                    });
+                } else {
+                    element.addEventListener(trigger, callback, false);
+                }
+            }
+
+            if (text) {
+                element.innerHTML = text;
+            }
+
+            if (attributes) {
+                for (const attribute in attributes) {
+                    if (attributes[attribute]) {
+                        element.setAttribute(attribute, attributes[attribute]);
+                    }
+                }
+            }
+
+            return element;
+        }
+
+        async function linkScripture(reference) {
+            const scripturePattern = /^(?<book>(?:\d )?(?:[A-Za-z& ]+)+) (?<chapter>\d+)(?::(?<start>\d+)(?:-(?<end>\d+))?)?$/i;
+            let link = '';
+
+            if (reference.length <= 25 && scripturePattern.test(reference)) {
+                const { book, chapter, start, end } = reference.match(scripturePattern).groups;
+
+                for (const scripture in scriptures) {
+                    if (book in scriptures[scripture]) {
+                        const abbreviation = scriptures[scripture][book];
+
+                        link = `https://www.churchofjesuschrist.org/study/scriptures/${scripture}/${abbreviation}/${chapter}`;
+                        
+                        if (start) {
+                            link += '.' + start;
+
+                            if (end) {
+                                link += '-' + end;
+                            }
+                        }
+
+                        link += '?lang=' + languages[await quotebookDB.getSettings('settings-language', 'English')];
+                    }
+                }
+            }
+
+            return link;
+        }
+
+        function hide(element) {
+            element.classList.remove('slide-left', 'slide-right');
+            element.classList.add('hide');
+        }
+
+        function show(element, direction) {
+            element.classList.remove('hide');
+
+            if (direction === 'left') {
+                element.classList.remove('slide-right');
+                element.classList.add('slide-left');
+            } else {
+                element.classList.remove('slide-left');
+                element.classList.add('slide-right');
+            }
+        }
+
+        class Library {
+            constructor() {
+                this.quotes = {};
+                this.quotesCount = 0;
+
+                this.page = 0;
+                this.pageLimit = defaultPageLimit;
+                
+                // Initialize with default, will be loaded from IndexedDB
+                this.initializeSettings();
+            }
+
+            async initializeSettings() {
+                try {
+                    const pageLimit = await quotebookDB.getSettings('settings-page-limit', defaultPageLimit);
+                    this.pageLimit = pageLimit;
+                } catch (error) {
+                    console.warn('Failed to load page limit from IndexedDB:', error);
+                    this.pageLimit = defaultPageLimit;
+                }
+            }
+
+            addQuote(data) {
+                const {
+                    author,
+                    reference,
+                    text,
+                    link,
+                    category,
+                    subcategory
+                } = data;
+
+                const quote = new Quote(
+                    author,
+                    reference,
+                    text,
+                    link,
+                    category,
+                    subcategory
+                );
+
+                quote.library = this;
+
+                if (!(category in this.quotes)) {
+                    this.quotes[category] = {};
+                }
+
+                if (!(subcategory in this.quotes[category])) {
+                    this.quotes[category][subcategory] = [];
+                }
+
+                this.quotes[category][subcategory].push(quote);
+
+                this.quotesCount++;
+            }
+
+            async removeQuote(quote) {
+                const { category, subcategory } = quote;
+
+                const list = this.quotes[category][subcategory];
+
+                list.splice(list.indexOf(quote), 1);
+
+                if (!list.length) {
+                    delete this.quotes[category][subcategory];
+                }
+
+                if (!Object.keys(this.quotes[category]).length) {
+                    delete this.quotes[category];
+                }
+
+                await this.saveStorage();
+
+                this.quotesCount--;
+            }
+
+            loadList(list) {
+                this.quotes = {};
+
+                list.forEach(item => {
+                    this.addQuote(item);
+                });
+            }
+
+            async loadStorage() {
+                try {
+                    const data = await quotebookDB.getAllQuotes();
+                    this.loadList(data || []);
+                } catch (error) {
+                    console.warn('Failed to load from IndexedDB:', error);
+                    // Fallback to localStorage for migration
+                    try {
+                        const storage = window.localStorage.getItem('quotebook-library');
+                        let data;
+                        
+                        if (storage) {
+                            data = JSON.parse(storage);
+                            // Migrate to IndexedDB
+                            await this.migrateFromLocalStorage(data);
+                        } else {
+                            data = [];
+                        }
+
+                        this.loadList(data);
+                    } catch (fallbackError) {
+                        console.error('Failed to load from localStorage as well:', fallbackError);
+                        this.loadList([]);
+                    }
+                }
+            }
+
+            async migrateFromLocalStorage(data) {
+                try {
+                    console.log('Migrating data from localStorage to IndexedDB...');
+                    await quotebookDB.saveAllQuotes(data);
+                    
+                    // Migrate settings
+                    const language = window.localStorage.getItem('settings-language');
+                    if (language) {
+                        await quotebookDB.setSettings('settings-language', language);
+                    }
+                    
+                    const pageLimit = window.localStorage.getItem('settings-page-limit');
+                    if (pageLimit) {
+                        await quotebookDB.setSettings('settings-page-limit', pageLimit);
+                    }
+                    
+                    // Clear localStorage after successful migration
+                    window.localStorage.removeItem('quotebook-library');
+                    window.localStorage.removeItem('settings-language');
+                    window.localStorage.removeItem('settings-page-limit');
+                    
+                    console.log('Migration completed successfully');
+                } catch (error) {
+                    console.error('Failed to migrate data to IndexedDB:', error);
+                }
+            }
+
+            getRaw() {
+                let data = [];
+
+                Object.values(this.quotes).forEach(category => {
+                    Object.values(category).forEach(subcategory => {
+                        Object.values(subcategory).forEach(quote => {
+                            data.push(quote.getRaw());
+                        });
+                    });
+                });
+
+                return data;
+            }
+
+            async saveStorage() {
+                try {
+                    const data = this.getRaw();
+                    await quotebookDB.saveAllQuotes(data);
+                } catch (error) {
+                    console.error('Failed to save to IndexedDB:', error);
+                    // Fallback to localStorage
+                    const data = this.getRaw();
+                    window.localStorage.setItem('quotebook-library', JSON.stringify(data));
+                }
+            }
+
+            renderList(query) {
+                while (quotesList.firstChild) {
+                    quotesList.firstChild.remove();
+                }
+
+                if (!Object.keys(this.quotes).length) {
+                    return;
+                }
+
+                const lowerLimit = this.page * this.pageLimit;
+                const upperLimit = (this.page + 1) * this.pageLimit;
+
+                let count = 0;
+                let nextExists = false;
+                let lastRound = false;
+
+                for (const category of Object.keys(this.quotes).sort()) {
+                    let displayCategory = false;
+
+                    const categoryHeader = createElement('H1', {
+                        parent: quotesList,
+                        elementClass: 'quotes-category',
+                        text: category === 'zzzmisc' ? 'Miscellaneous' : category
+                    });
+
+                    Object.keys(this.quotes[category]).sort().forEach(subcategory => {
+                        let subcategoryHeader;
+                        let displaySubcategory = false;
+
+                        if (subcategory !== '0misc') {
+                            subcategoryHeader = createElement('H2', {
+                                parent: quotesList,
+                                elementClass: 'quotes-subcategory',
+                                text: subcategory
+                            });
+                        }
+
+                        const quotes = Object.values(this.quotes[category][subcategory]);
+
+                        for (let quoteIndex = 0; quoteIndex < quotes.length; quoteIndex++) {
+                            if (count >= upperLimit) {
+                                lastRound = true;
+                            }
+
+                            const quote = quotes[quoteIndex];
+
+                            const matches = [
+                                quote.author,
+                                quote.reference,
+                                quote.text,
+                                quote.category,
+                                quote.subcategory
+                            ].some(field => {
+                                return new RegExp(query, 'ig').test(field);
+                            });
+
+                            if (!query || matches) {
+                                if (lastRound) {
+                                    nextExists = true;
+                                    break;
+                                } else {
+                                    count++;
+
+                                    if (count <= lowerLimit) continue;
+
+                                    quote.renderRow();
+                                    displayCategory = true;
+                                    
+                                    if (subcategory !== '0misc') {
+                                        displaySubcategory = true;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (!displaySubcategory) {
+                            if (subcategory !== '0misc') {
+                                subcategoryHeader.remove();
+                            }
+                        }
+                    });
+
+                    if (!displayCategory) {
+                        categoryHeader.remove();
+                    }
+                }
+
+                if (!nextExists && this.page === 0) {
+                    return;
+                }
+
+                const pageButtonWrapper = createElement('DIV', {
+                    parent: quotesList,
+                    elementClass: 'page-button-wrapper'
+                });
+
+                const leftButton = createElement('BUTTON', {
+                    parent: pageButtonWrapper,
+                    elementClass: ['page-button', 'page-button-left'],
+                    eventListener: ['click', () => {
+                        if (this.page > 0) {
+                            this.page--;
+                            this.renderList(query);
+
+                            mainView.scrollTo(0, 0);
+                        }
+                    }]
+                });
+
+                if (this.page === 0) {
+                    leftButton.classList.add('disabled');
+                }
+                
+                addImage('backArrow', leftButton);
+
+                const rightButton = createElement('BUTTON', {
+                    parent: pageButtonWrapper,
+                    elementClass: ['page-button', 'page-button-right'],
+                    eventListener: ['click', () => {
+                        if (nextExists) {
+                            this.page++;
+                            this.renderList(query);
+
+                            mainView.scrollTo(0, 0);
+                        }
+                    }]
+                });
+
+                if (!nextExists) {
+                    rightButton.classList.add('disabled');
+                }
+                
+                addImage('frontArrow', rightButton);
+            }
+        }
+
+        class Quote {
+            constructor(author, reference, text, link, category, subcategory) {
+                this.author = author;
+                this.reference = reference;
+                this.text = text;
+                this.link = link;
+                this.category = category;
+                this.subcategory = subcategory;
+
+                this.library = undefined;
+            }
+
+            getRaw() {
+                return {
+                    author: this.author,
+                    reference: this.reference,
+                    text: this.text,
+                    link: this.link,
+                    category: this.category,
+                    subcategory: this.subcategory
+                };
+            }
+
+            async setProperty(property, value) {
+                this[property] = value;
+                await this.library.saveStorage();
+            }
+
+            renderRow() {
+                const rowElement = createElement('DIV', {
+                    parent: quotesList,
+                    elementClass: 'quote'
+                });
+
+                createElement('DIV', {
+                    parent: rowElement,
+                    elementClass: 'quote-text',
+                    text: this.text,
+                    eventListener: ['click', this.renderDetails.bind(this)],
+                });
+
+                const reference = createElement('DIV', {
+                    parent: rowElement,
+                    elementClass: 'quote-reference',
+                    text: '―'
+                });
+
+                if (this.author) {
+                    createElement('SPAN', {
+                        parent: reference,
+                        elementClass: 'reference-author',
+                        text: this.author + (this.reference ? ', ' : '')
+                    });
+                }
+
+                if (this.link) {
+                    createElement('A', {
+                        parent: createElement('SPAN', {
+                            parent: reference,
+                            elementClass: 'reference-source'
+                        }),
+                        text: this.reference,
+                        elementClass: 'link',
+                        attributes: {
+                            'href': this.link,
+                            'target': '_blank'
+                        }
+                    });
+                } else {
+                    createElement('SPAN', {
+                        parent: reference,
+                        elementClass: 'reference-source',
+                        text: this.reference
+                    });
+                }
+
+                return rowElement;
+            }
+
+            renderDetails() {
+                let originalScroll = mainView.scrollY;
+
+                while (detailsView.firstChild) {
+                    detailsView.firstChild.remove();
+                }
+
+                backArrowCallback = () => {
+                    this.library.renderList(searchInput.value);
+
+                    hide(detailsView);
+                    show(mainView, 'right');
+                    show(settingsButton, 'right');
+                    show(searchBar, 'right');
+
+                    mainView.scrollTo(0, originalScroll);
+                };
+                show(backArrow, 'left');
+
+                createElement('H1', {
+                    parent: detailsView,
+                    text: 'Author',
+                    elementClass: 'details-input-label'
+                });
+
+                const authorInput = createElement('INPUT', {
+                    parent: detailsView,
+                    elementClass: 'details-input',
+                    attributes: {
+                        type: 'text',
+                        value: this.author
+                    },
+                    eventListener: ['change', () => {
+                        this.author = authorInput.value;
+                        this.library.renderList();
+                        this.library.saveStorage();
+                    }]
+                });
+
+                createElement('H1', {
+                    parent: detailsView,
+                    text: 'Reference',
+                    elementClass: 'details-input-label'
+                });
+
+                const referenceInput = createElement('INPUT', {
+                    parent: detailsView,
+                    elementClass: 'details-input',
+                    attributes: {
+                        type: 'text',
+                        value: this.reference
+                    },
+                    eventListener: ['change', async () => {
+                        this.reference = referenceInput.value;
+                        
+                        let link = await linkScripture(referenceInput.value);
+
+                        if (link) {
+                            this.link = link;
+                            linkInput.value = link;
+                        }
+
+                        this.library.renderList();
+                        await this.library.saveStorage();
+                    }]
+                });
+
+                createElement('H1', {
+                    parent: detailsView,
+                    text: 'Text',
+                    elementClass: 'details-input-label'
+                });
+
+                const quoteInput = createElement('TEXTAREA', {
+                    parent: detailsView,
+                    elementClass: 'details-textarea',
+                    attributes: {
+                        rows: 4
+                    },
+                    text: this.text,
+                    eventListener: ['change', () => {
+                        this.text = quoteInput.value;
+                        this.library.renderList();
+                        this.library.saveStorage();
+                    }]
+                });
+
+                createElement('H1', {
+                    parent: detailsView,
+                    text: 'Link',
+                    elementClass: 'details-input-label'
+                });
+
+                const linkInput = createElement('INPUT', {
+                    parent: detailsView,
+                    elementClass: 'details-input',
+                    attributes: {
+                        type: 'text',
+                        value: this.link
+                    },
+                    eventListener: ['change', () => {
+                        this.link = linkInput.value;
+                        this.library.renderList();
+                        this.library.saveStorage();
+                    }]
+                });
+
+                createElement('H1', {
+                    parent: detailsView,
+                    text: 'Category',
+                    elementClass: 'details-input-label'
+                });
+
+                const categoryInput = createElement('INPUT', {
+                    parent: detailsView,
+                    elementClass: 'details-input',
+                    attributes: {
+                        type: 'text',
+                        value: this.category === 'zzzmisc' ? '' : this.category
+                    },
+                    eventListener: [['focus', 'keyup'], () => {
+                        while (categorySelect.firstChild) {
+                            categorySelect.firstChild.remove();
+                        }
+
+                        let categories = Object.keys(this.library.quotes).filter(category => {
+                            return category.toLowerCase().startsWith(categoryInput.value.toLowerCase());
+                        });
+
+                        categories = categories.filter(category => category !== 'zzzmisc').sort();
+
+                        if (categories.length) {
+                            categories.forEach(category => {
+                                createElement('DIV', {
+                                    parent: categorySelect,
+                                    elementClass: 'select-item',
+                                    text: category,
+                                    eventListener: ['click', () => {
+                                        categoryInput.value = category;
+                                    }]
+                                });
+                            });
+
+                            categorySelect.classList.remove('hide');
+                        }
+                    }]
+                });
+
+                const categorySelect = createElement('DIV', {
+                    parent: createElement('DIV', {
+                        parent: detailsView,
+                        elementClass: 'select-wrapper-container'
+                    }),
+                    elementClass: ['hide', 'select-wrapper']
+                });
+
+                categoryInput.addEventListener('focusout', () => {
+                    setTimeout(() => {
+                        this.category = categoryInput.value || 'zzzmisc';
+                        this.library.saveStorage();
+                        this.library.loadStorage();
+                        this.library.renderList();
+
+                        categorySelect.classList.add('hide');
+                    }, 1);
+                }, false);
+
+                createElement('H1', {
+                    parent: detailsView,
+                    text: 'Subcategory',
+                    elementClass: 'details-input-label'
+                });
+
+                const subcategoryInput = createElement('INPUT', {
+                    parent: detailsView,
+                    elementClass: 'details-input',
+                    attributes: {
+                        type: 'text',
+                        value: this.subcategory === '0misc' ? '' : this.subcategory
+                    },
+                    eventListener: [['focus', 'keyup'], () => {
+                        while (subcategorySelect.firstChild) {
+                            subcategorySelect.firstChild.remove();
+                        }
+
+                        let subcategories = [];
+
+                        if (categoryInput.value in library.quotes) {
+                            Object.keys(library.quotes[categoryInput.value]).forEach(subcategory => {
+                                if (subcategory.toLowerCase().startsWith(subcategoryInput.value.toLowerCase())) {
+                                    subcategories.push(subcategory);
+                                }
+                            });
+                        }
+
+                        subcategories = subcategories.filter(subcategory => subcategory !== '0misc').sort();
+
+                        if (subcategories.length) {
+                            subcategories.forEach(subcategory => {
+                                createElement('DIV', {
+                                    parent: subcategorySelect,
+                                    elementClass: 'select-item',
+                                    text: subcategory,
+                                    eventListener: ['click', () => {
+                                        subcategoryInput.value = subcategory;
+
+                                        this.subcategory = subcategoryInput.value || '0misc';
+                                        this.library.saveStorage();
+                                        this.library.loadStorage();
+                                        this.library.renderList();
+                                    }]
+                                });
+                            });
+
+                            subcategorySelect.classList.remove('hide');
+                        }
+                    }]
+                });
+
+                const subcategorySelect = createElement('DIV', {
+                    parent: createElement('DIV', {
+                        parent: detailsView,
+                        elementClass: 'select-wrapper-container'
+                    }),
+                    elementClass: ['hide', 'select-wrapper']
+                });
+
+                subcategoryInput.addEventListener('focusout', () => {
+                    setTimeout(() => {
+                        this.subcategory = subcategoryInput.value || '0misc';
+                        this.library.saveStorage();
+                        this.library.loadStorage();
+                        this.library.renderList();
+
+                        subcategorySelect.classList.add('hide');
+                    }, 1);
+                }, false);
+
+                createElement('BUTTON', {
+                    parent: detailsView,
+                    elementClass: 'details-copy',
+                    text: 'Copy',
+                    eventListener: ['click', () => {
+                        let text = this.text;
+
+                        const reference = [this.author, this.reference].filter(x => x).join(', ');
+
+                        if (reference) {
+                            text += ` (${reference})`;
+                        }
+
+                        quoteInput.innerText = text;
+                        quoteInput.select();
+                        quoteInput.setSelectionRange(0, 99999);
+
+                        document.execCommand('copy');
+
+                        this.library.renderList(searchInput.value);
+
+                        show(mainView, 'right');
+                        show(settingsButton, 'right');
+                        show(searchBar, 'right');
+
+                        hide(detailsView);
+
+                        mainView.scrollTo(0, originalScroll);
+                    }]
+                });
+
+                createElement('BUTTON', {
+                    parent: detailsView,
+                    elementClass: 'details-delete',
+                    text: 'Delete',
+                    eventListener: ['click', () => {
+                        confirmPrompt('Are you sure?', 'Yes', 'No', detailsView).then(async (response) => {
+                            if (response) {
+                                await this.library.removeQuote(this);
+                                this.library.renderList(searchInput.value);
+
+                                show(mainView, 'right');
+                                show(settingsButton, 'right');
+                                show(searchBar, 'right');
+
+                                hide(detailsView);
+
+                                mainView.scrollTo(0, originalScroll);
+                            }
+                        });
+                    }]
+                });
+
+                mainView.scrollTo(0, 0);
+
+                hide(mainView);
+                hide(settingsButton);
+                hide(searchBar);
+
+                show(detailsView, 'left');
+            }
+        }
+
+        const library = new Library();
+
+        // Initialize the app asynchronously
+        async function initializeApp() {
+            try {
+                await quotebookDB.init();
+                await library.loadStorage();
+                library.renderList();
+            } catch (error) {
+                console.error('Failed to initialize app:', error);
+                // Fallback to empty library
+                library.renderList();
+            }
+        }
+
+        // Start the app
+        initializeApp();
+
+        quoteButton.addEventListener('click', () => {
+            let originalScroll = mainView.scrollY;
+
+            while (addView.firstChild) {
+                addView.firstChild.remove();
+            }
+
+            createElement('H1', {
+                parent: addView,
+                text: 'Author',
+                elementClass: 'add-input-label'
+            });
+
+            const authorInput = createElement('INPUT', {
+                parent: addView,
+                elementClass: 'add-input',
+                attributes: {
+                    type: 'text'
+                }
+            });
+
+            createElement('H1', {
+                parent: addView,
+                text: 'Reference',
+                elementClass: 'add-input-label'
+            });
+
+            const referenceInput = createElement('INPUT', {
+                parent: addView,
+                elementClass: 'add-input',
+                attributes: {
+                    type: 'text'
+                },
+                eventListener: ['change', async () => {
+                    const link = await linkScripture(referenceInput.value);
+
+                    if (link) {
+                        linkInput.value = link;
+                    }
+                }]
+            });
+
+            createElement('H1', {
+                parent: addView,
+                text: 'Text',
+                elementClass: 'add-input-label'
+            });
+
+            const quoteInput = createElement('TEXTAREA', {
+                parent: addView,
+                elementClass: 'add-textarea',
+                attributes: {
+                    rows: 4
+                }
+            });
+
+            createElement('H1', {
+                parent: addView,
+                text: 'Link',
+                elementClass: 'add-input-label'
+            });
+
+            const linkInput = createElement('INPUT', {
+                parent: addView,
+                elementClass: 'add-input',
+                attributes: {
+                    type: 'text'
+                }
+            });
+
+            createElement('H1', {
+                parent: addView,
+                text: 'Category',
+                elementClass: 'add-input-label'
+            });
+
+            const categoryInput = createElement('INPUT', {
+                parent: addView,
+                elementClass: 'add-input',
+                attributes: {
+                    type: 'text'
+                },
+                eventListener: [['focus', 'keyup'], () => {
+                    while (categorySelect.firstChild) {
+                        categorySelect.firstChild.remove();
+                    }
+
+                    let categories = Object.keys(library.quotes).filter(category => {
+                        return category.toLowerCase().startsWith(categoryInput.value.toLowerCase());
+                    });
+
+                    categories = categories.filter(category => category !== 'zzzmisc').sort();
+
+                    if (categories.length) {
+                        categories.forEach(category => {
+                            createElement('DIV', {
+                                parent: categorySelect,
+                                elementClass: 'select-item',
+                                text: category,
+                                eventListener: ['click', () => {
+                                    categoryInput.value = category;
+                                }]
+                            });
+                        });
+
+                        categorySelect.classList.remove('hide');
+                    }
+                }]
+            });
+
+            const categorySelect = createElement('DIV', {
+                parent: createElement('DIV', {
+                    parent: addView,
+                    elementClass: 'select-wrapper-container'
+                }),
+                elementClass: ['hide', 'select-wrapper']
+            });
+
+            categoryInput.addEventListener('focusout', () => {
+                setTimeout(() => {
+                    categorySelect.classList.add('hide');
+                }, 1);
+            }, false);
+
+            createElement('H1', {
+                parent: addView,
+                text: 'Subcategory',
+                elementClass: 'add-input-label'
+            });
+
+            const subcategoryInput = createElement('INPUT', {
+                parent: addView,
+                elementClass: 'add-input',
+                attributes: {
+                    type: 'text'
+                },
+                eventListener: [['focus', 'keyup'], () => {
+                    while (subcategorySelect.firstChild) {
+                        subcategorySelect.firstChild.remove();
+                    }
+
+                    let subcategories = [];
+
+                    if (categoryInput.value in library.quotes) {
+                        Object.keys(library.quotes[categoryInput.value]).forEach(subcategory => {
+                            if (subcategory.toLowerCase().startsWith(subcategoryInput.value.toLowerCase())) {
+                                subcategories.push(subcategory);
+                            }
+                        });
+                    }
+
+                    subcategories = subcategories.filter(subcategory => subcategory !== '0misc').sort();
+
+                    if (subcategories.length) {
+                        subcategories.forEach(subcategory => {
+                            createElement('DIV', {
+                                parent: subcategorySelect,
+                                elementClass: 'select-item',
+                                text: subcategory,
+                                eventListener: ['click', () => {
+                                    subcategoryInput.value = subcategory;
+                                }]
+                            });
+                        });
+
+                        subcategorySelect.classList.remove('hide');
+                    }
+                }]
+            });
+
+            const subcategorySelect = createElement('DIV', {
+                parent: createElement('DIV', {
+                    parent: addView,
+                    elementClass: 'select-wrapper-container'
+                }),
+                elementClass: ['hide', 'select-wrapper']
+            });
+
+            subcategoryInput.addEventListener('focusout', () => {
+                setTimeout(() => {
+                    subcategorySelect.classList.add('hide');
+                }, 1);
+            }, false);
+
+            const buttonWrapper = createElement('DIV', {
+                parent: addView,
+                elementClass: 'add-button-wrapper'
+            });
+
+            createElement('BUTTON', {
+                parent: buttonWrapper,
+                elementClass: 'add-button',
+                text: 'Save',
+                eventListener: ['click', async () => {
+                    if (authorInput.value || referenceInput.value) {
+                        const quote = new Quote(
+                            authorInput.value,
+                            referenceInput.value,
+                            quoteInput.value,
+                            linkInput.value,
+                            categoryInput.value || 'zzzmisc',
+                            subcategoryInput.value || '0misc'
+                        );
+
+                        library.addQuote(quote);
+                        await library.saveStorage();
+                        library.renderList(searchInput.value);
+                    }
+
+                    hide(addView);
+
+                    show(mainView, 'right');
+                    show(settingsButton, 'right');
+                    show(searchBar, 'right');
+
+                    mainView.scrollTo(0, originalScroll);
+                }]
+            });
+
+            createElement('BUTTON', {
+                parent: buttonWrapper,
+                elementClass: 'add-button',
+                text: 'Save & Add',
+                eventListener: ['click', async () => {
+                    if (authorInput.value || referenceInput.value) {
+                        const quote = new Quote(
+                            authorInput.value,
+                            referenceInput.value,
+                            quoteInput.value,
+                            linkInput.value,
+                            categoryInput.value || 'zzzmisc',
+                            subcategoryInput.value || '0misc'
+                        );
+
+                        library.addQuote(quote);
+                        await library.saveStorage();
+                        library.renderList(searchInput.value);
+                    }
+
+                    quoteInput.value = '';
+
+                    mainView.scrollTo(0, 0);
+                }]
+            });
+
+            createElement('BUTTON', {
+                parent: buttonWrapper,
+                elementClass: 'add-button',
+                text: 'Discard',
+                eventListener: ['click', () => {
+                    library.renderList(searchInput.value);
+
+                    hide(addView);
+
+                    show(mainView, 'right');
+                    show(settingsButton, 'right');
+                    show(searchBar, 'right');
+
+                    mainView.scrollTo(0, originalScroll);
+                }]
+            });
+
+
+            mainView.scrollTo(0, 0);
+
+            show(addView, 'left');
+
+            hide(mainView);
+            hide(settingsButton);
+            hide(searchBar);
+        }, false);
+
+        searchInput.addEventListener('keyup', e => {
+            if (e.keyCode === 13) {
+                searchInput.blur();
+            } else {
+                library.loadStorage();
+                library.page = 0;
+                library.renderList(searchInput.value);
+
+                mainView.scrollTo(0, 0);
+            }
+        }, false);
+
+        settingsButton.addEventListener('click', () => {
+            let originalScroll = mainView.scrollY;
+
+            mainView.scrollTo(0, 0);
+
+            while (settingsView.firstChild) {
+                settingsView.firstChild.remove();
+            }
+
+            backArrowCallback = () => {
+                library.renderList(searchInput.value);
+
+                hide(settingsView);
+
+                show(mainView, 'right');
+                show(settingsButton, 'right');
+                show(searchBar, 'right');
+
+                mainView.scrollTo(0, originalScroll);
+            };
+            show(backArrow, 'left');
+
+            createElement('H1', {
+                parent: settingsView,
+                text: 'Settings',
+                elementClass: 'settings-title'
+            });
+
+            createElement('H2', {
+                parent: settingsView,
+                text: 'Default Language',
+                elementClass: 'settings-header'
+            });
+
+            // Initialize language input with async loading
+            const languageInput = createElement('DIV', {
+                parent: settingsView,
+                elementClass: 'language-input',
+                text: 'Loading...',
+                eventListener: ['click', e => {
+                    e.stopPropagation();
+
+                    while (languageSelect.firstChild) {
+                        languageSelect.firstChild.remove();
+                    }
+
+                    const languages = ['English', 'Portuguese', 'Spanish', 'Japanese'];
+
+                    languages.forEach(language => {
+                        createElement('DIV', {
+                            parent: languageSelect,
+                            elementClass: 'select-item',
+                            text: language,
+                            eventListener: ['click', async () => {
+                                languageInput.innerText = language;
+                                await quotebookDB.setSettings('settings-language', language);
+                            }]
+                        });
+                    });
+
+                    languageSelect.classList.remove('hide');
+                }]
+            });
+
+            // Load the language setting asynchronously
+            quotebookDB.getSettings('settings-language', 'English').then(language => {
+                languageInput.innerText = language;
+            }).catch(error => {
+                console.warn('Failed to load language setting:', error);
+                languageInput.innerText = 'English';
+            });
+
+            window.addEventListener('click', e => {
+                languageSelect.classList.add('hide');
+            }, false);
+
+            const languageSelect = createElement('DIV', {
+                parent: createElement('DIV', {
+                    parent: settingsView,
+                    elementClass: 'select-wrapper-container'
+                }),
+                elementClass: ['hide', 'select-wrapper']
+            });
+
+            languageInput.addEventListener('focusout', () => {
+                setTimeout(() => {
+                    languageSelect.classList.add('hide');
+                }, 1);
+            }, false);
+
+            createElement('H2', {
+                parent: settingsView,
+                text: 'Page Limit',
+                elementClass: 'settings-header'
+            });
+
+            // Initialize page limit input with async loading
+            const pageLimitInput = createElement('INPUT', {
+                parent: settingsView,
+                elementClass: 'language-input',
+                attributes: {
+                    value: defaultPageLimit,
+                    type: 'number'
+                },
+                eventListener: ['change', async () => {
+                    const limit = Math.abs(parseInt(pageLimitInput.value));
+
+                    if (limit) {
+                        library.pageLimit = limit;
+                        await quotebookDB.setSettings('settings-page-limit', limit);
+                    } else {
+                        pageLimitInput.value = defaultPageLimit;
+                        library.pageLimit = defaultPageLimit;
+                        await quotebookDB.setSettings('settings-page-limit', defaultPageLimit);
+                    }
+                }]
+            });
+
+            // Load the page limit setting asynchronously
+            quotebookDB.getSettings('settings-page-limit', defaultPageLimit).then(pageLimit => {
+                pageLimitInput.value = pageLimit;
+                library.pageLimit = pageLimit;
+            }).catch(error => {
+                console.warn('Failed to load page limit setting:', error);
+                pageLimitInput.value = defaultPageLimit;
+            });
+
+            createElement('H2', {
+                parent: settingsView,
+                text: 'Import',
+                elementClass: 'settings-header'
+            });
+
+            createElement('BUTTON', {
+                parent: settingsView,
+                text: 'Open File',
+                elementClass: 'settings-button',
+                eventListener: ['click', () => {
+                    const fileInput = createElement('INPUT', {
+                        parent: settingsView,
+                        elementClass: 'hide',
+                        attributes: {
+                            type: 'file',
+                            accept: '.quotes'
+                        },
+                        eventListener: ['change', e => {
+                            const file = e.target.files[0];
+
+                            if (!file) return;
+
+                            const reader = new FileReader();
+
+                            reader.onload = e => {
+                                confirmPrompt('Replace current library or just add?', 'Overwrite', 'Add', settingsView).then(async (response) => {
+                                    if (response === true) {
+                                        const contents = e.target.result;
+
+                                        library.page = 0;
+
+                                        library.loadList(JSON.parse(contents));
+                                        library.renderList();
+                                        await library.saveStorage();
+
+                                        mainView.scrollTo(0, 0);
+
+                                        hide(settingsView);
+
+                                        show(mainView, 'right');
+                                        show(settingsButton, 'right');  
+                                        show(searchBar, 'right');
+                                    } else if (response === false) {
+                                        const contents = JSON.parse(e.target.result);
+
+                                        contents.forEach(item => {
+                                            library.addQuote(item);
+                                        });
+
+                                        library.page = 0;
+
+                                        library.renderList();
+                                        await library.saveStorage();
+
+                                        mainView.scrollTo(0, 0);
+
+                                        hide(settingsView);
+
+                                        show(mainView, 'right');
+                                        show(settingsButton, 'right');
+                                        show(searchBar, 'right');
+                                    }
+                                });
+                            };
+
+                            reader.readAsText(file);
+                        }]
+                    });
+                    fileInput.click();
+                    fileInput.remove();
+                }]
+            });
+
+            createElement('H2', {
+                parent: settingsView,
+                text: 'Export',
+                elementClass: 'settings-header'
+            });
+
+            createElement('BUTTON', {
+                parent: settingsView,
+                text: 'Save',
+                elementClass: 'settings-button',
+                eventListener: ['click', () => {
+                    const data = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(library.getRaw()));
+                    
+                    const link = createElement('A', {
+                        parent: settingsView,
+                        elementClass: 'hide',
+                        attributes: {
+                            href: data,
+                            download: 'backup.quotes'
+                        }
+                    });
+
+                    link.click();
+                    link.remove();
+                }]
+            });
+
+            hide(mainView);
+            hide(settingsButton);
+            hide(searchBar);
+
+            show(settingsView, 'left');
+        }, false);
+
+        backArrow.addEventListener('click', () => {
+            if (backArrowCallback) {
+                backArrowCallback();
+            }
+
+            hide(backArrow);
+            backArrowCallback = null;
+        }, false);
+
+        function confirmPrompt(header, yesLabel, noLabel, view) {
+            show(confirmationView, 'left');
+            hide(view);
+
+            while (confirmationView.firstChild) {
+                confirmationView.firstChild.remove();
+            }
+
+            return new Promise(resolve => {
+                backArrowCallback = () => {
+                    show(view, 'right');
+                    hide(confirmationView);
+
+                    resolve();
+                };
+                show(backArrow, 'left');
+
+                createElement('H1', {
+                    parent: confirmationView,
+                    ID: 'confirmation-header',
+                    text: header
+                });
+
+                const wrapper = createElement('DIV', {
+                    parent: confirmationView,
+                    elementClass: 'save-discard-buttons'
+                });
+
+                createElement('BUTTON', {
+                    parent: wrapper,
+                    ID: 'confirmation-yes',
+                    elementClass: 'confirm-button',
+                    text: yesLabel,
+                    eventListener: ['click', () => {
+                        hide(confirmationView);
+                        show(view, 'right');
+
+                        resolve(true);
+                    }]
+                });
+
+                createElement('BUTTON', {
+                    parent: wrapper,
+                    ID: 'confirmation-no',
+                    elementClass: 'discard-button',
+                    text: noLabel,
+                    eventListener: ['click', () => {
+                        hide(confirmationView);
+                        show(view, 'right');
+
+                        resolve(false);
+                    }]
+                });
+            });
+        }
+
+    </script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((registration) => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New content is available, refresh the page
+                                    if (confirm('New version available! Reload to update?')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch((error) => {
+                        console.log('ServiceWorker registration failed: ', error);
+                    });
+            });
+        }
+
+        // Handle offline/online status
+        window.addEventListener('online', () => {
+            console.log('App is online');
+            // Optionally show a notification that the app is back online
+        });
+
+        window.addEventListener('offline', () => {
+            console.log('App is offline');
+            // Optionally show a notification that the app is now offline
+        });
+
+        // Handle app installation
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+            
+            // Optionally show your own install button
+            console.log('PWA install prompt available');
+        });
+    </script>
+
+</body>
+
+</html>
